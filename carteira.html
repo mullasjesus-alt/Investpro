@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carteira</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+body{background:#050505;color:white;padding:20px;padding-bottom:110px;}
+
+/* LOADING */
+.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#050505;display:flex;justify-content:center;align-items:center;z-index:9999;}
+.loading-overlay p{color:#8B5CF6;font-size:18px;font-weight:bold;}
+
+/* TOPO */
+.topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+.topo-titulo{font-size:22px;font-weight:bold;}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#4F46E5);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;}
+
+/* SALDOS */
+.saldos-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px;}
+.saldo-card{background:#111;border:1px solid #222;border-radius:18px;padding:18px 15px;position:relative;overflow:hidden;}
+.saldo-card::before{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;border-radius:50%;opacity:0.07;}
+.saldo-card.disponivel::before{background:#00ff73;}
+.saldo-card.investimento::before{background:#8B5CF6;}
+.saldo-label{color:#888;font-size:12px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.saldo-valor{font-size:19px;font-weight:bold;line-height:1.2;margin-bottom:2px;}
+.saldo-card.disponivel .saldo-valor{color:#00ff73;}
+.saldo-card.investimento .saldo-valor{color:#a78bfa;}
+.saldo-icon{font-size:22px;margin-bottom:8px;}
+
+/* BOTÕES AÇÃO */
+.acoes-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:28px;}
+.btn-acao{background:#111;border:1px solid #222;border-radius:16px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all 0.2s;}
+.btn-acao:hover{border-color:#8B5CF6;background:#18113a;}
+.btn-acao i{font-size:22px;}
+.btn-acao span{font-size:12px;color:#ccc;font-weight:bold;}
+.btn-acao.depositar i{color:#00ff73;}
+.btn-acao.sacar i{color:#f87171;}
+.btn-acao.trocar i{color:#a78bfa;}
+
+/* SECTION TITLE */
+.section-title{font-size:16px;font-weight:bold;margin-bottom:14px;color:#ddd;}
+
+/* DADOS BANCÁRIOS */
+.dados-card{background:#111;border:1px solid #222;border-radius:18px;padding:20px;margin-bottom:28px;}
+.dados-card.guardado{border-color:#1d4b2c;}
+.input-group{margin-bottom:14px;}
+.input-group label{display:block;color:#888;font-size:12px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.input-group input{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:10px;padding:12px 14px;color:white;font-size:14px;outline:none;transition:border-color 0.2s;}
+.input-group input:focus{border-color:#8B5CF6;}
+.input-group input:disabled{color:#666;cursor:not-allowed;background:#080808;}
+.btn-guardar{width:100%;padding:14px;background:linear-gradient(90deg,#8B5CF6,#4F46E5);border:none;border-radius:12px;color:white;font-size:15px;font-weight:bold;cursor:pointer;margin-top:4px;}
+.btn-guardar:disabled{background:#1a1a1a;color:#444;cursor:not-allowed;}
+.dados-guardados-badge{display:flex;align-items:center;gap:8px;color:#4ade80;font-size:13px;margin-top:12px;}
+
+/* LISTA MOVIMENTOS */
+.mov-card{background:#111;border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:10px;}
+.mov-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.mov-tipo{font-weight:bold;font-size:14px;}
+.mov-status{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:bold;}
+.status-pendente{background:#2d2000;color:#fbbf24;}
+.status-confirmado{background:#0d3b1a;color:#4ade80;}
+.status-rejeitado{background:#3b0d0d;color:#f87171;}
+.mov-row{display:flex;justify-content:space-between;margin-bottom:4px;}
+.mov-row .ml{color:#777;font-size:12px;}
+.mov-row .mv{font-size:12px;font-weight:bold;}
+.lista-vazia{text-align:center;color:#444;padding:30px 20px;font-size:14px;}
+
+/* NAVBAR */
+.bottom{position:fixed;bottom:0;left:0;width:100%;background:#090909;border-top:1px solid #222;display:flex;justify-content:space-around;padding:15px 0;z-index:998;}
+.bottom a{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:#aaa;text-decoration:none;}
+.bottom i{font-size:22px;}
+.nav-ativo{color:#8B5CF6 !important;}
+
+/* OVERLAY GERAL */
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9990;display:none;}
+.overlay.show{display:block;}
+
+/* PAINEL DESLIZANTE */
+.painel{position:fixed;bottom:-100%;left:0;width:100%;background:#0d0d14;border-radius:24px 24px 0 0;border-top:1px solid #2a2a2a;z-index:9991;transition:bottom 0.35s ease;max-height:90vh;overflow-y:auto;}
+.painel.show{bottom:0;}
+.painel-header{display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid #1a1a1a;position:sticky;top:0;background:#0d0d14;z-index:1;}
+.painel-header h3{font-size:17px;font-weight:bold;}
+.btn-fechar{background:#1e1e1e;border:none;color:#aaa;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.painel-body{padding:20px;}
+
+/* PAINEL SACAR */
+.info-limite{background:#1a1000;border:1px solid #3b2a00;border-radius:12px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#fbbf24;line-height:1.6;}
+.taxa-info{background:#0d1a12;border:1px solid #1a3a25;border-radius:12px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#4ade80;line-height:1.6;}
+.valor-input-wrap{position:relative;margin-bottom:16px;}
+.valor-input-wrap input{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:12px;padding:14px 55px 14px 16px;color:white;font-size:18px;font-weight:bold;outline:none;}
+.valor-input-wrap input:focus{border-color:#8B5CF6;}
+.valor-input-wrap span{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#555;font-size:14px;}
+.calculo-box{background:#111;border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:16px;}
+.calculo-row{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;}
+.calculo-row:last-child{margin-bottom:0;padding-top:8px;border-top:1px solid #222;font-weight:bold;font-size:14px;}
+.calculo-row .cl{color:#888;}
+.calculo-row .cv{color:white;}
+.calculo-row.total .cv{color:#00ff73;}
+.btn-confirmar{width:100%;padding:15px;background:linear-gradient(90deg,#8B5CF6,#4F46E5);border:none;border-radius:13px;color:white;font-size:16px;font-weight:bold;cursor:pointer;margin-top:4px;}
+.btn-confirmar.danger{background:linear-gradient(90deg,#ef4444,#b91c1c);}
+
+/* PAINEL DEPOSITAR */
+.banco-card{background:#111;border:1px solid #1a3a25;border-radius:14px;padding:16px;margin-bottom:14px;}
+.banco-nome{color:#4ade80;font-weight:bold;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.banco-row{display:flex;justify-content:space-between;margin-bottom:5px;}
+.banco-row .bl{color:#777;font-size:12px;}
+.banco-row .bv{font-size:13px;font-weight:bold;color:#ddd;}
+.upload-area{border:2px dashed #2a2a2a;border-radius:12px;padding:24px;text-align:center;margin-bottom:16px;cursor:pointer;transition:border-color 0.2s;}
+.upload-area:hover{border-color:#8B5CF6;}
+.upload-area.has-file{border-color:#4ade80;background:#0a1a0f;}
+.upload-area i{font-size:28px;color:#555;margin-bottom:8px;}
+.upload-area p{color:#666;font-size:13px;}
+.upload-area.has-file i{color:#4ade80;}
+.upload-area.has-file p{color:#4ade80;}
+#inputFoto{display:none;}
+.dep-aviso{background:#1a0d2e;border:1px solid #3b1f6a;border-radius:12px;padding:12px 14px;font-size:13px;color:#a78bfa;line-height:1.6;margin-bottom:16px;}
+
+/* PAINEL TROCAR */
+.trocar-desc{color:#888;font-size:13px;line-height:1.6;margin-bottom:18px;}
+.saldo-badge{display:inline-flex;align-items:center;gap:6px;background:#0d2a1a;border:1px solid #1a4a2a;border-radius:20px;padding:6px 14px;font-size:13px;color:#4ade80;margin-bottom:18px;}
+
+/* POPUP / ALERTA */
+.alerta-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);justify-content:center;align-items:center;z-index:9999;display:none;}
+.alerta-overlay.show{display:flex;}
+.alerta-box{background:#121212;border:1px solid #8B5CF6;border-radius:20px;padding:30px 25px;width:90%;max-width:360px;text-align:center;}
+.alerta-icon{font-size:44px;margin-bottom:14px;}
+.alerta-box h3{font-size:19px;margin-bottom:10px;}
+.alerta-box p{color:#aaa;font-size:14px;margin-bottom:20px;line-height:1.6;white-space:pre-line;}
+.btn-ok{background:linear-gradient(90deg,#8B5CF6,#4F46E5);color:white;width:100%;padding:13px;border:none;border-radius:12px;font-weight:bold;font-size:15px;cursor:pointer;}
+.btn-ok.success{background:linear-gradient(90deg,#16a34a,#15803d);}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading"><p>A carregar...</p></div>
+
+<!-- TOPO -->
+<div class="topo">
+  <div class="topo-titulo">Carteira</div>
+  <div class="avatar" id="avatarLetra">?</div>
+</div>
+
+<!-- SALDOS -->
+<div class="saldos-grid">
+  <div class="saldo-card disponivel">
+    <div class="saldo-icon">💵</div>
+    <div class="saldo-label">Disponível</div>
+    <div class="saldo-valor" id="saldoDisp">0 Kz</div>
+  </div>
+  <div class="saldo-card investimento">
+    <div class="saldo-icon">📈</div>
+    <div class="saldo-label">Investimento</div>
+    <div class="saldo-valor" id="saldoInv">0 Kz</div>
+  </div>
+</div>
+
+<!-- BOTÕES -->
+<div class="acoes-grid">
+  <div class="btn-acao depositar" onclick="abrirDepositar()">
+    <i class="fa-solid fa-arrow-down-to-line"></i>
+    <span>Depositar</span>
+  </div>
+  <div class="btn-acao sacar" onclick="abrirSacar()">
+    <i class="fa-solid fa-arrow-up-from-line"></i>
+    <span>Sacar</span>
+  </div>
+  <div class="btn-acao trocar" onclick="abrirTrocar()">
+    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+    <span>Trocar</span>
+  </div>
+</div>
+
+<!-- DADOS BANCÁRIOS -->
+<div class="section-title">Dados Bancários</div>
+<div class="dados-card" id="dadosCard">
+  <div class="input-group">
+    <label>Banco</label>
+    <input type="text" id="inpBanco" placeholder="Ex: BFA, BIC, Banco Sol...">
+  </div>
+  <div class="input-group">
+    <label>Nome Completo</label>
+    <input type="text" id="inpNome" placeholder="Nome completo do titular">
+  </div>
+  <div class="input-group">
+    <label>IBAN (21 dígitos)</label>
+    <input type="text" id="inpIBAN" placeholder="000000000000000000000" maxlength="21" inputmode="numeric">
+  </div>
+  <div class="input-group">
+    <label>Número Express</label>
+    <input type="text" id="inpExpress" placeholder="9XXXXXXXXX" inputmode="numeric">
+  </div>
+  <button class="btn-guardar" id="btnGuardar" onclick="guardarDados()">
+    <i class="fa-solid fa-floppy-disk"></i> Guardar Dados
+  </button>
+</div>
+
+<!-- MOVIMENTOS -->
+<div class="section-title" style="margin-top:10px">Saques & Depósitos</div>
+<div id="listaMov"><div class="lista-vazia">A carregar movimentos...</div></div>
+
+<!-- NAVBAR -->
+<div class="bottom">
+  <a href="feed.html"><i class="fa-solid fa-house"></i><span>Início</span></a>
+  <a href="mercado.html"><i class="fa-solid fa-chart-line"></i><span>Mercado</span></a>
+  <a href="carteira.html" class="nav-ativo"><i class="fa-solid fa-wallet"></i><span>Carteira</span></a>
+  <a href="equipa.html"><i class="fa-solid fa-users"></i><span>Equipa</span></a>
+  <a href="perfil.html"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="fecharTudo()"></div>
+
+<!-- PAINEL SACAR -->
+<div class="painel" id="painelSacar">
+  <div class="painel-header">
+    <h3>💸 Sacar Dinheiro</h3>
+    <button class="btn-fechar" onclick="fecharTudo()">✕</button>
+  </div>
+  <div class="painel-body">
+    <div class="info-limite">
+      ⚠️ Mínimo: <b>1.000 Kz</b> &nbsp;|&nbsp; Máximo: <b>500.000 Kz</b> por dia<br>
+      A plataforma retém <b>35%</b> do valor sacado como taxa.
+    </div>
+    <div class="input-group">
+      <label>Valor a Sacar</label>
+      <div class="valor-input-wrap">
+        <input type="number" id="inpSacar" placeholder="0" inputmode="numeric" oninput="calcularSaque()">
+        <span>Kz</span>
+      </div>
+    </div>
+    <div class="calculo-box" id="calculoSaque" style="display:none">
+      <div class="calculo-row">
+        <span class="cl">Valor solicitado</span>
+        <span class="cv" id="cSolicitado">—</span>
+      </div>
+      <div class="calculo-row">
+        <span class="cl">Taxa plataforma (35%)</span>
+        <span class="cv" id="cTaxa" style="color:#f87171">—</span>
+      </div>
+      <div class="calculo-row total">
+        <span class="cl">Vai receber</span>
+        <span class="cv" id="cLiquido">—</span>
+      </div>
+    </div>
+    <button class="btn-confirmar danger" onclick="confirmarSaque()">
+      <i class="fa-solid fa-paper-plane"></i> Confirmar Saque
+    </button>
+  </div>
+</div>
+
+<!-- PAINEL DEPOSITAR -->
+<div class="painel" id="painelDepositar">
+  <div class="painel-header">
+    <h3>💰 Depositar</h3>
+    <button class="btn-fechar" onclick="fecharTudo()">✕</button>
+  </div>
+  <div class="painel-body">
+    <div class="dep-aviso">
+      📌 Transfira o valor para uma das contas abaixo, depois preencha o formulário e envie o comprovante.<br>
+      💡 Mínimo: <b>1.000 Kz</b> &nbsp;|&nbsp; Máximo: <b>1.000.000 Kz</b> por depósito. O saldo será creditado em até <b>24 horas</b>.
+    </div>
+
+    <!-- Banco Sol -->
+    <div class="banco-card">
+      <div class="banco-nome"><i class="fa-solid fa-building-columns"></i> Banco Sol</div>
+      <div class="banco-row"><span class="bl">Nome</span><span class="bv">João Alberto C. Salvador</span></div>
+      <div class="banco-row"><span class="bl">IBAN</span><span class="bv" style="font-size:12px">0044 0000 72939167101 85</span></div>
+      <div class="banco-row"><span class="bl">Express</span><span class="bv">940 713 318</span></div>
+    </div>
+
+    <!-- BFA -->
+    <div class="banco-card">
+      <div class="banco-nome"><i class="fa-solid fa-building-columns"></i> Banco BFA</div>
+      <div class="banco-row"><span class="bl">Nome</span><span class="bv">João Alberto C. Salvador</span></div>
+      <div class="banco-row"><span class="bl">IBAN</span><span class="bv" style="font-size:12px">0006 0000 67673981301 68</span></div>
+      <div class="banco-row"><span class="bl">Express</span><span class="bv">940 713 318</span></div>
+    </div>
+
+    <div class="input-group">
+      <label>Valor Depositado</label>
+      <div class="valor-input-wrap">
+        <input type="number" id="inpDepValor" placeholder="0" inputmode="numeric">
+        <span>Kz</span>
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Número de Cadastro</label>
+      <input type="text" id="inpDepCadastro" placeholder="O seu número de cadastro" style="width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:12px;padding:14px;color:white;font-size:14px;outline:none;">
+    </div>
+    <div class="input-group">
+      <label>Comprovante de Transferência</label>
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('inputFoto').click()">
+        <i class="fa-solid fa-camera" id="uploadIcon"></i>
+        <p id="uploadTxt">Toque para anexar comprovante<br><span style="font-size:11px;color:#444">JPG, PNG ou PDF</span></p>
+      </div>
+      <input type="file" id="inputFoto" accept="image/*,application/pdf" onchange="fileChanged(this)">
+    </div>
+    <button class="btn-confirmar" onclick="enviarDeposito()">
+      <i class="fa-solid fa-paper-plane"></i> Enviar Comprovante
+    </button>
+  </div>
+</div>
+
+<!-- PAINEL TROCAR SALDO -->
+<div class="painel" id="painelTrocar">
+  <div class="painel-header">
+    <h3>🔄 Trocar Saldo</h3>
+    <button class="btn-fechar" onclick="fecharTudo()">✕</button>
+  </div>
+  <div class="painel-body">
+    <p class="trocar-desc">Mova fundos do saldo <b>Disponível</b> para o saldo <b>Investimento</b>. Mínimo de <b>500 Kz</b>.</p>
+    <div class="saldo-badge">
+      <i class="fa-solid fa-circle-dollar-to-slot"></i>
+      Disponível: <span id="trocaDisp" style="font-weight:bold">0 Kz</span>
+    </div>
+    <div class="input-group" style="margin-bottom:16px">
+      <label>Valor a Transferir</label>
+      <div class="valor-input-wrap">
+        <input type="number" id="inpTrocar" placeholder="500" inputmode="numeric">
+        <span>Kz</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:12px 14px;background:#111;border-radius:12px;font-size:13px;">
+      <div style="text-align:center;flex:1"><div style="color:#00ff73;font-weight:bold;font-size:15px">Disponível</div><div style="color:#666;font-size:11px;margin-top:2px">↓</div></div>
+      <i class="fa-solid fa-arrow-right" style="color:#8B5CF6;font-size:18px"></i>
+      <div style="text-align:center;flex:1"><div style="color:#a78bfa;font-weight:bold;font-size:15px">Investimento</div><div style="color:#666;font-size:11px;margin-top:2px">↑</div></div>
+    </div>
+    <button class="btn-confirmar" onclick="confirmarTroca()">
+      <i class="fa-solid fa-arrow-right-arrow-left"></i> Trocar Agora
+    </button>
+  </div>
+</div>
+
+<!-- ALERTA -->
+<div class="alerta-overlay" id="alertaOverlay">
+  <div class="alerta-box">
+    <div class="alerta-icon" id="alertaIcon"></div>
+    <h3 id="alertaTitulo"></h3>
+    <p id="alertaTexto"></p>
+    <div id="alertaBtns"></div>
+  </div>
+</div>
+
+<script>
+window.addEventListener("load", async function () {
+
+/* ========================
+   SUPABASE
+======================== */
+const supabaseUrl = "https://tuaclpevpkqvoeggywub.supabase.co";
+// service_role — necessário para upload de ficheiros e inserção sem RLS
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWNscGV2cGtxdm9lZ2d5d3ViIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDc2NzY3MSwiZXhwIjoyMDk2MzQzNjcxfQ.DYGenEQPOrs9FcFkJSlfe_2VPKxwJIzSBIpA6JW732c";
+const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+let usuario = null;
+let fotoFile = null;
+
+/* ========================
+   UTILS
+======================== */
+function fmtKz(v){ return Number(v||0).toLocaleString("pt-AO") + " Kz"; }
+function fmtData(iso){
+  if(!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString("pt-PT") + " " + d.toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
+}
+
+/* ========================
+   ALERTA
+======================== */
+function alerta(icon, titulo, texto, tipo, cb){
+  document.getElementById("alertaIcon").innerText = icon;
+  document.getElementById("alertaTitulo").innerText = titulo;
+  document.getElementById("alertaTexto").innerText = texto;
+  const btns = document.getElementById("alertaBtns");
+  if(tipo==="loading"){
+    btns.innerHTML=`<p style="color:#8B5CF6;text-align:center;font-size:13px">Por favor aguarde...</p>`;
+  } else if(tipo==="success"){
+    btns.innerHTML=`<button class="btn-ok success" onclick="fecharAlerta()">${cb||"OK"}</button>`;
+  } else {
+    btns.innerHTML=`<button class="btn-ok" onclick="fecharAlerta()">OK</button>`;
+  }
+  document.getElementById("alertaOverlay").classList.add("show");
+}
+window.fecharAlerta = function(){ document.getElementById("alertaOverlay").classList.remove("show"); };
+
+/* ========================
+   CARREGAR USUÁRIO
+======================== */
+async function init(){
+  const cache = localStorage.getItem("usuario");
+  if(!cache){ window.location.replace("login.html"); return; }
+  let userCache;
+  try{ userCache = JSON.parse(cache); }catch{ window.location.replace("login.html"); return; }
+  if(!userCache?.id){ window.location.replace("login.html"); return; }
+
+  const { data, error } = await db.from("usuarios").select("*").eq("id",userCache.id).single();
+  document.getElementById("loading").style.display = "none";
+
+  if(error || !data){ window.location.replace("login.html"); return; }
+  usuario = data;
+  localStorage.setItem("usuario", JSON.stringify(data));
+
+  renderSaldos();
+  renderDadosBancarios();
+  carregarMovimentos();
+}
+
+function renderSaldos(){
+  const nome = usuario.nome || usuario.email || "U";
+  document.getElementById("avatarLetra").innerText = nome[0].toUpperCase();
+  document.getElementById("saldoDisp").innerText = fmtKz(usuario.saldo_disponivel||0);
+  document.getElementById("saldoInv").innerText = fmtKz(usuario.saldo_investimento||0);
+}
+
+/* ========================
+   DADOS BANCÁRIOS
+======================== */
+function renderDadosBancarios(){
+  const guardado = usuario.banco_guardado;
+  if(guardado){
+    document.getElementById("inpBanco").value = usuario.banco_nome||"";
+    document.getElementById("inpNome").value = usuario.banco_titular||"";
+    document.getElementById("inpIBAN").value = usuario.banco_iban||"";
+    document.getElementById("inpExpress").value = usuario.banco_express||"";
+    ["inpBanco","inpNome","inpIBAN","inpExpress"].forEach(id=>
+      document.getElementById(id).disabled=true
+    );
+    document.getElementById("btnGuardar").disabled = true;
+    document.getElementById("btnGuardar").innerHTML = `<i class="fa-solid fa-circle-check"></i> Dados Guardados`;
+    document.getElementById("dadosCard").classList.add("guardado");
+  }
+}
+
+window.guardarDados = async function(){
+  const banco   = document.getElementById("inpBanco").value.trim();
+  const nome    = document.getElementById("inpNome").value.trim();
+  const iban    = document.getElementById("inpIBAN").value.trim();
+  const express = document.getElementById("inpExpress").value.trim();
+
+  if(!banco||!nome||!iban||!express){ alerta("⚠️","Campos Obrigatórios","Preencha todos os dados bancários.","ok"); return; }
+  if(iban.length !== 21){ alerta("⚠️","IBAN Inválido","O IBAN deve ter exactamente 21 dígitos.","ok"); return; }
+
+  alerta("⏳","A Guardar...","Por favor aguarde.","loading");
+
+  const { error } = await db.from("usuarios").update({
+    banco_nome: banco,
+    banco_titular: nome,
+    banco_iban: iban,
+    banco_express: express,
+    banco_guardado: true
+  }).eq("id", usuario.id);
+
+  if(error){ alerta("❌","Erro","Não foi possível guardar os dados.","ok"); return; }
+
+  usuario.banco_nome = banco;
+  usuario.banco_titular = nome;
+  usuario.banco_iban = iban;
+  usuario.banco_express = express;
+  usuario.banco_guardado = true;
+  localStorage.setItem("usuario", JSON.stringify(usuario));
+
+  fecharAlerta();
+  renderDadosBancarios();
+  alerta("✅","Dados Guardados","Os seus dados bancários foram guardados com sucesso.","success");
+};
+
+/* ========================
+   PAINEL SACAR
+======================== */
+window.abrirSacar = function(){
+  if(!usuario.banco_guardado){
+    alerta("⚠️","Dados Bancários","Adicione e guarde os seus dados bancários antes de sacar.","ok"); return;
+  }
+  document.getElementById("inpSacar").value = "";
+  document.getElementById("calculoSaque").style.display = "none";
+  document.getElementById("overlay").classList.add("show");
+  document.getElementById("painelSacar").classList.add("show");
+};
+
+window.calcularSaque = function(){
+  const v = parseFloat(document.getElementById("inpSacar").value)||0;
+  if(v < 1){ document.getElementById("calculoSaque").style.display="none"; return; }
+  const taxa = Math.floor(v * 0.35);
+  const liq = v - taxa;
+  document.getElementById("cSolicitado").innerText = fmtKz(v);
+  document.getElementById("cTaxa").innerText = "- " + fmtKz(taxa);
+  document.getElementById("cLiquido").innerText = fmtKz(liq);
+  document.getElementById("calculoSaque").style.display = "block";
+};
+
+window.confirmarSaque = async function(){
+  const v = parseFloat(document.getElementById("inpSacar").value)||0;
+  if(v < 1000){ alerta("⚠️","Valor Inválido","O mínimo para sacar é 1.000 Kz.","ok"); return; }
+  if(v > 500000){ alerta("⚠️","Limite Atingido","O máximo por saque é 500.000 Kz.","ok"); return; }
+
+  const saldoDisp = Number(usuario.saldo_disponivel||0);
+  if(saldoDisp < v){ alerta("❌","Saldo Insuficiente",`O seu saldo disponível é de ${fmtKz(saldoDisp)}.\n\nNão tem saldo suficiente para sacar ${fmtKz(v)}.`,"ok"); return; }
+
+  // Verificar limite diário
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const { data: saquesHoje } = await db.from("saques")
+    .select("valor").eq("usuario_id",usuario.id)
+    .gte("criado_em", hoje.toISOString())
+    .not("status","eq","rejeitado");
+
+  const totalHoje = (saquesHoje||[]).reduce((acc,s)=>acc+Number(s.valor||0),0);
+  if(totalHoje + v > 500000){
+    alerta("⚠️","Limite Diário Atingido",`Já solicitou ${fmtKz(totalHoje)} hoje.\nO limite diário é 500.000 Kz.`,"ok"); return;
+  }
+
+  fecharTudo();
+  alerta("⏳","A Processar...","Por favor aguarde.","loading");
+
+  const taxa = Math.floor(v * 0.35);
+  const liqSacar = v - taxa;
+  const novoSaldo = saldoDisp - v;
+
+  const { error: errUp } = await db.from("usuarios").update({
+    saldo_disponivel: novoSaldo
+  }).eq("id", usuario.id);
+
+  if(errUp){ alerta("❌","Erro","Não foi possível processar o saque.","ok"); return; }
+
+  const dadosBancarios = {
+    banco: usuario.banco_nome    || "",
+    titular: usuario.banco_titular || "",
+    iban: usuario.banco_iban      || "",
+    express: usuario.banco_express || ""
+  };
+
+  const { error: insErr } = await db.from("saques").insert({
+    usuario_id: usuario.id,
+    valor: v,
+    valor_liquido: liqSacar,
+    status: "pendente",
+    criado_em: new Date().toISOString(),
+    dados_bancarios: dadosBancarios   // Supabase aceita objeto directo em JSONB
+  });
+
+  if(insErr){
+    // Reverter saldo se inserção falhou
+    await db.from("usuarios").update({ saldo_disponivel: saldoDisp }).eq("id", usuario.id);
+    usuario.saldo_disponivel = saldoDisp;
+    localStorage.setItem("usuario", JSON.stringify(usuario));
+    renderSaldos();
+    fecharAlerta();
+    alerta("❌","Erro","Não foi possível processar o saque. Saldo devolvido.","ok");
+    return;
+  }
+
+  usuario.saldo_disponivel = novoSaldo;
+  localStorage.setItem("usuario", JSON.stringify(usuario));
+  renderSaldos();
+  carregarMovimentos();
+  fecharAlerta();
+  alerta("✅","Saque Solicitado!",`Pedido de ${fmtKz(v)} registado.\nReceberá ${fmtKz(liqSacar)} após taxa de %.\n\nAguarde confirmação em até 24h.`,"success","Entendido");
+};
+
+/* ========================
+   PAINEL DEPOSITAR
+======================== */
+window.abrirDepositar = function(){
+  document.getElementById("inpDepValor").value = "";
+  document.getElementById("inpDepCadastro").value = usuario.numero_cadastro || usuario.id.toString().slice(0,8);
+  document.getElementById("overlay").classList.add("show");
+  document.getElementById("painelDepositar").classList.add("show");
+  fotoFile = null;
+  document.getElementById("uploadArea").classList.remove("has-file");
+  document.getElementById("uploadIcon").className = "fa-solid fa-camera";
+  document.getElementById("uploadTxt").innerHTML = 'Toque para anexar comprovante<br><span style="font-size:11px;color:#444">JPG, PNG ou PDF</span>';
+};
+
+window.fileChanged = function(input){
+  if(input.files && input.files[0]){
+    fotoFile = input.files[0];
+    document.getElementById("uploadArea").classList.add("has-file");
+    document.getElementById("uploadIcon").className = "fa-solid fa-circle-check";
+    document.getElementById("uploadTxt").innerHTML = `<b>${fotoFile.name}</b><br><span style="font-size:11px">Toque para alterar</span>`;
+  }
+};
+
+window.enviarDeposito = async function(){
+  const valor     = parseFloat(document.getElementById("inpDepValor").value)||0;
+  const cadastro  = document.getElementById("inpDepCadastro").value.trim();
+
+  if(valor < 1000){ alerta("⚠️","Valor Inválido","O mínimo para depositar é 1.000 Kz.","ok"); return; }
+  if(valor > 1000000){ alerta("⚠️","Limite Atingido","O máximo por depósito é 1.000.000 Kz.","ok"); return; }
+  if(!fotoFile){ alerta("⚠️","Comprovante","Anexe o comprovante de transferência.","ok"); return; }
+
+  fecharTudo();
+  alerta("⏳","A Enviar...","Por favor aguarde enquanto fazemos o upload do comprovante.","loading");
+
+  // ── UPLOAD COMPROVANTE ──
+  // Bucket correcto: "comprovante" (singular) com pasta "depositos" dentro
+  const ext = fotoFile.name.split('.').pop().toLowerCase();
+  const fileName = `dep_${usuario.id}_${Date.now()}.${ext}`;
+  const filePath = `depositos/${fileName}`;
+  let comprovanteUrl = null;
+
+  try {
+    const { data: upData, error: upErr } = await db.storage
+      .from("comprovante")
+      .upload(filePath, fotoFile, { upsert: true, contentType: fotoFile.type });
+
+    if(!upErr && upData){
+      const { data: urlData } = db.storage.from("comprovante").getPublicUrl(filePath);
+      if(urlData?.publicUrl) comprovanteUrl = urlData.publicUrl;
+    }
+  } catch(e){ /* continuar sem URL do storage */ }
+
+  // Fallback: se upload falhou, converter para base64 para não perder o comprovante
+  if(!comprovanteUrl){
+    try {
+      comprovanteUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(fotoFile);
+      });
+    } catch(e){ comprovanteUrl = null; }
+  }
+
+  // Gravar depósito com URL do comprovante (storage URL ou base64)
+  const { error: insErr } = await db.from("depositos").insert({
+    usuario_id:      usuario.id,
+    valor:           valor,
+    numero_cadastro: cadastro,
+    comprovante_url: comprovanteUrl,
+    status:          "pendente",
+    criado_em:       new Date().toISOString()
+  });
+
+  if(insErr){
+    fecharAlerta();
+    alerta("❌","Erro","Não foi possível enviar o depósito. Tente novamente.","ok");
+    return;
+  }
+
+  carregarMovimentos();
+  fecharAlerta();
+  alerta("✅","Depósito Enviado!","O seu comprovante foi recebido com sucesso.\n\nO saldo será creditado em até 24 horas após validação.","success","Entendido");
+};
+
+/* ========================
+   PAINEL TROCAR SALDO
+======================== */
+window.abrirTrocar = function(){
+  document.getElementById("inpTrocar").value = "";
+  document.getElementById("trocaDisp").innerText = fmtKz(usuario.saldo_disponivel||0);
+  document.getElementById("overlay").classList.add("show");
+  document.getElementById("painelTrocar").classList.add("show");
+};
+
+window.confirmarTroca = async function(){
+  const v = parseFloat(document.getElementById("inpTrocar").value)||0;
+  if(v < 500){ alerta("⚠️","Valor Inválido","O mínimo para trocar é 500 Kz.","ok"); return; }
+
+  const saldoDisp = Number(usuario.saldo_disponivel||0);
+  if(saldoDisp < v){
+    alerta("❌","Saldo para Troca Insuficiente",`O seu saldo disponível é de ${fmtKz(saldoDisp)}.\n\nNão tem saldo suficiente para transferir ${fmtKz(v)}.`,"ok"); return;
+  }
+
+  fecharTudo();
+  alerta("⏳","A Processar...","Por favor aguarde.","loading");
+
+  const novoDisp = saldoDisp - v;
+  const novoInv  = Number(usuario.saldo_investimento||0) + v;
+
+  const { error } = await db.from("usuarios").update({
+    saldo_disponivel: novoDisp,
+    saldo_investimento: novoInv
+  }).eq("id", usuario.id);
+
+  if(error){ fecharAlerta(); alerta("❌","Erro","Não foi possível processar a troca.","ok"); return; }
+
+  usuario.saldo_disponivel  = novoDisp;
+  usuario.saldo_investimento = novoInv;
+  localStorage.setItem("usuario", JSON.stringify(usuario));
+  renderSaldos();
+  fecharAlerta();
+  alerta("✅","Troca Realizada!",`${fmtKz(v)} transferidos para o saldo investimento com sucesso.`,"success");
+};
+
+/* ========================
+   MOVIMENTOS (SAQUES + DEPÓSITOS)
+======================== */
+async function carregarMovimentos(){
+  const [rS, rD] = await Promise.all([
+    db.from("saques").select("*").eq("usuario_id",usuario.id).order("criado_em",{ascending:false}).limit(20),
+    db.from("depositos").select("*").eq("usuario_id",usuario.id).order("criado_em",{ascending:false}).limit(20)
+  ]);
+
+  const saques    = (rS.data||[]).map(s=>({...s, _tipo:"saque"}));
+  const depositos = (rD.data||[]).map(d=>({...d, _tipo:"deposito"}));
+  const todos = [...saques, ...depositos].sort((a,b)=>new Date(b.criado_em)-new Date(a.criado_em));
+
+  if(!todos.length){
+    document.getElementById("listaMov").innerHTML = `<div class="lista-vazia">Sem movimentos ainda.</div>`; return;
+  }
+
+  let html = "";
+  todos.forEach(m => {
+    const isSaque = m._tipo === "saque";
+    const statusClass = m.status==="confirmado"?"status-confirmado":m.status==="rejeitado"?"status-rejeitado":"status-pendente";
+    const statusLabel = m.status==="confirmado"?"Confirmado":m.status==="rejeitado"?"Rejeitado":"Pendente";
+    const valorLabel  = isSaque ? fmtKz(m.valor) : fmtKz(m.valor);
+    const tipoLabel   = isSaque ? "💸 Saque" : "💰 Depósito";
+    const corValor    = isSaque ? "#f87171" : "#4ade80";
+
+    html += `
+      <div class="mov-card">
+        <div class="mov-topo">
+          <span class="mov-tipo">${tipoLabel}</span>
+          <span class="mov-status ${statusClass}">${statusLabel}</span>
+        </div>
+        <div class="mov-row"><span class="ml">Valor</span><span class="mv" style="color:${corValor}">${valorLabel}</span></div>
+        ${isSaque ? `<div class="mov-row"><span class="ml">Valor Líquido (65%)</span><span class="mv" style="color:#a78bfa">${fmtKz(m.valor_liquido)}</span></div>` : ""}
+        <div class="mov-row"><span class="ml">Data</span><span class="mv">${fmtData(m.criado_em)}</span></div>
+        ${isSaque && m.dados_bancarios ? `<div class="mov-row"><span class="ml">Banco</span><span class="mv">${m.dados_bancarios.banco||"—"}</span></div>` : ""}
+      </div>`;
+  });
+  document.getElementById("listaMov").innerHTML = html;
+
+  // Verificar saques rejeitados para devolver saldo
+  const rejeitados = saques.filter(s => s.status === "rejeitado" && !s.devolvido);
+  for(const s of rejeitados){
+    // Marca como devolvido (apenas se houver campo — opcional)
+    // A devolução é feita pelo ADM diretamente no painel ADM
+  }
+}
+
+/* ========================
+   FECHAR PAINEIS
+======================== */
+window.fecharTudo = function(){
+  document.getElementById("overlay").classList.remove("show");
+  ["painelSacar","painelDepositar","painelTrocar"].forEach(id=>{
+    document.getElementById(id).classList.remove("show");
+  });
+};
+
+init();
+
+}); // fim load
+</script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #0A0A0A;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  width: 100%;
+  max-width: 400px;
+  padding: 25px;
+  background: #121212;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.logo {
+  text-align: center;
+  color: #8B5CF6;
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #888;
+  margin-bottom: 25px;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #1C1C1C;
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+}
+
+input::placeholder {
+  color: #555;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(90deg, #8B5CF6, #3B82F6);
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.msg {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  display: none;
+  text-align: center;
+}
+
+.msg.error   { background: #3b0d0d; color: #ff6b6b; }
+.msg.success { background: #0d3b1a; color: #4ade80; }
+.msg.loading { background: #1e1b3a; color: #a78bfa; }
+
+.links {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.links a {
+  display: block;
+  margin-top: 12px;
+  color: #8B5CF6;
+  text-decoration: none;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="logo">INVEST PRO</div>
+  <div class="subtitle">Entre na sua conta</div>
+
+  <input id="telefone" type="tel" placeholder="Telefone">
+  <input id="password" type="password" placeholder="Palavra-passe">
+
+  <button id="btnEntrar" onclick="fazerLogin()">Entrar</button>
+
+  <div id="msg" class="msg"></div>
+
+  <div class="links">
+    <a href="cadastro.html">Criar nova conta</a>
+    <a href="suporte.html">
+  <i class="fa-solid fa-headset"></i>
+  <span>Recoperar Senha</span>
+</a>
+      Recuperar palavra-passe
+    </a>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+/* ==========================
+   SUPABASE
+========================== */
+const supabaseUrl = "https://tuaclpevpkqvoeggywub.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWNscGV2cGtxdm9lZ2d5d3ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3Njc2NzEsImV4cCI6MjA5NjM0MzY3MX0.ptGzyNLv0gYyq2DgbXOlBFZgK1VbKdaLAdFwLugom2A";
+const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+/* ==========================
+   MOSTRAR MENSAGEM
+========================== */
+function showMsg(text, type) {
+  const msg = document.getElementById("msg");
+  msg.style.display = "block";
+  msg.className = "msg " + type;
+  msg.innerText = text;
+}
+
+/* ==========================
+   FAZER LOGIN
+========================== */
+async function fazerLogin() {
+
+  const telefone = document.getElementById("telefone").value.trim();
+  const password = document.getElementById("password").value;
+
+  // Validações
+  if (!telefone) {
+    showMsg("Preencha o telefone", "error");
+    return;
+  }
+
+  if (!password) {
+    showMsg("Preencha a palavra-passe", "error");
+    return;
+  }
+
+  // Desativa botão
+  document.getElementById("btnEntrar").disabled = true;
+  showMsg("A iniciar sessão...", "loading");
+
+  try {
+
+    // Busca utilizador pelo telefone
+    const { data: users, error } = await db
+      .from("usuarios")
+      .select("*")
+      .eq("telefone", telefone);
+
+    if (error) {
+      showMsg("Erro no servidor. Tente novamente.", "error");
+      document.getElementById("btnEntrar").disabled = false;
+      return;
+    }
+
+    if (!users || users.length === 0) {
+      showMsg("Telefone não encontrado", "error");
+      document.getElementById("btnEntrar").disabled = false;
+      return;
+    }
+
+    const usuario = users[0];
+
+    // Verifica a palavra-passe
+    if (usuario.password !== password) {
+      showMsg("Palavra-passe incorreta", "error");
+      document.getElementById("btnEntrar").disabled = false;
+      return;
+    }
+
+    // Guarda o utilizador no localStorage
+    localStorage.setItem("usuario", JSON.stringify(usuario));
+
+    showMsg("Login efetuado com sucesso!", "success");
+
+    // Redireciona para o dashboard
+    setTimeout(() => {
+      window.location.href = "feed.html";
+    }, 1200);
+
+  } catch (err) {
+    showMsg("Erro inesperado: " + err.message, "error");
+    document.getElementById("btnEntrar").disabled = false;
+  }
+
+}
+
+</script>
+</body>
+</html>

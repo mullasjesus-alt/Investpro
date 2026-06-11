@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercado</title>
+<script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+body { background:#050505; color:white; padding:20px; padding-bottom:100px; }
+
+/* LOADING */
+.loading-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:#050505; display:flex; justify-content:center;
+  align-items:center; z-index:9999;
+}
+.loading-overlay p { color:#8B5CF6; font-size:18px; font-weight:bold; }
+
+/* TOPO */
+.topo { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
+.topo-titulo { font-size:22px; font-weight:bold; }
+.btn-historico {
+  background:#111; border:1px solid #333; color:#8B5CF6;
+  padding:10px 16px; border-radius:12px; font-size:13px;
+  font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:8px;
+}
+
+/* GRÁFICO */
+.preco { font-size:32px; font-weight:bold; color:#00ff73; margin-bottom:5px; }
+.status-mercado { color:#00ff73; font-size:13px; margin-bottom:15px; }
+#grafico {
+  width:100%; height:280px; border-radius:20px; overflow:hidden;
+  border:1px solid #222; background:#0b0b0b;
+  box-shadow:0 0 15px rgba(0,255,115,0.08); margin-bottom:30px;
+}
+
+/* SECÇÃO */
+.section-title { font-size:20px; font-weight:bold; margin-bottom:15px; }
+
+/* TABS */
+.vips-scroll {
+  display:flex; gap:12px; overflow-x:auto;
+  padding-bottom:10px; margin-bottom:25px; scrollbar-width:none;
+}
+.vips-scroll::-webkit-scrollbar { display:none; }
+.vip-tab {
+  flex-shrink:0; padding:10px 20px; border-radius:25px;
+  font-weight:bold; font-size:14px; cursor:pointer;
+  border:2px solid #333; background:#111; color:#aaa;
+  transition:all 0.2s; display:flex; align-items:center;
+  gap:6px; white-space:nowrap;
+}
+.vip-tab.ativo {
+  background:linear-gradient(90deg,#8B5CF6,#4F46E5);
+  border-color:#8B5CF6; color:white;
+}
+
+/* BANNER BLOQUEADO */
+.banner-bloqueado {
+  background:#1a0d0d; border:1px solid rgba(255,77,77,0.3);
+  border-radius:18px; padding:20px; margin-bottom:20px;
+  display:flex; justify-content:space-between; align-items:center; gap:15px;
+}
+.banner-bloqueado h3 { color:#ff6b6b; margin-bottom:5px; font-size:16px; }
+.banner-bloqueado p { color:#aaa; font-size:13px; line-height:1.5; }
+.btn-desbloquear {
+  padding:10px 16px; background:linear-gradient(90deg,#8B5CF6,#4F46E5);
+  border:none; border-radius:12px; color:white; font-weight:bold;
+  font-size:13px; cursor:pointer; flex-shrink:0;
+}
+
+/* CARD NÍVEL */
+.nivel-card {
+  background:#111; border:1px solid #222;
+  border-radius:18px; overflow:hidden; margin-bottom:18px; position:relative;
+}
+.nivel-card img { width:100%; height:180px; object-fit:cover; }
+.bloqueado-overlay {
+  position:absolute; top:0; left:0; width:100%; height:180px;
+  background:rgba(0,0,0,0.65); display:flex;
+  justify-content:center; align-items:center; font-size:44px; color:#ff6b6b;
+}
+.nivel-info { padding:15px; }
+.nivel-nome { font-size:17px; font-weight:bold; color:#8B5CF6; margin-bottom:12px; }
+.nivel-row { display:flex; justify-content:space-between; margin-bottom:8px; }
+.nivel-row .label { color:#aaa; font-size:14px; }
+.nivel-row .valor { font-weight:bold; font-size:14px; color:#00ff73; }
+.nivel-row .valor.prazo { color:#a78bfa; }
+.btn-investir {
+  width:100%; padding:14px; margin-top:12px;
+  background:#22c55e; border:none; border-radius:12px;
+  font-size:16px; font-weight:bold; color:white; cursor:pointer;
+}
+.btn-investir:disabled { background:#1a1a1a; color:#444; cursor:not-allowed; }
+
+/* NAVBAR */
+.bottom {
+  position:fixed; bottom:0; left:0; width:100%;
+  background:#090909; border-top:1px solid #222;
+  display:flex; justify-content:space-around; padding:15px 0; z-index:998;
+}
+.bottom a {
+  display:flex; flex-direction:column; align-items:center;
+  gap:6px; font-size:12px; color:#aaa; text-decoration:none;
+}
+.bottom i { font-size:22px; }
+.nav-ativo { color:#8B5CF6 !important; }
+
+/* ALERTA */
+.alerta-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.85); justify-content:center;
+  align-items:center; z-index:9999; display:none;
+}
+.alerta-overlay.show { display:flex; }
+.alerta-box {
+  background:#121212; border:1px solid #8B5CF6;
+  border-radius:20px; padding:30px 25px;
+  width:90%; max-width:360px; text-align:center;
+}
+.alerta-icon { font-size:42px; margin-bottom:15px; }
+.alerta-box h3 { font-size:20px; margin-bottom:10px; }
+.alerta-box p {
+  color:#aaa; font-size:14px; margin-bottom:20px;
+  line-height:1.6; white-space:pre-line;
+}
+.alerta-btns { display:flex; gap:12px; }
+.alerta-btns button {
+  flex:1; padding:13px; border:none; border-radius:12px;
+  font-weight:bold; font-size:15px; cursor:pointer;
+}
+.btn-sim { background:linear-gradient(90deg,#8B5CF6,#4F46E5); color:white; }
+.btn-nao { background:#222; color:#aaa; }
+.btn-ok {
+  background:linear-gradient(90deg,#8B5CF6,#4F46E5); color:white;
+  width:100%; padding:13px; border:none; border-radius:12px;
+  font-weight:bold; font-size:15px; cursor:pointer;
+}
+
+/* PAINEL HISTÓRICO */
+.painel-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.7); z-index:9990; display:none;
+}
+.painel-overlay.show { display:block; }
+.painel {
+  position:fixed; bottom:-100%; left:0; width:100%; height:80vh;
+  background:#0d0d14; border-radius:24px 24px 0 0;
+  border-top:1px solid #333; z-index:9991;
+  transition:bottom 0.35s ease; display:flex;
+  flex-direction:column; overflow:hidden;
+}
+.painel.show { bottom:0; }
+.painel-header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:20px; border-bottom:1px solid #222; flex-shrink:0;
+}
+.painel-header h3 { font-size:18px; font-weight:bold; }
+.btn-fechar-painel {
+  background:#222; border:none; color:#aaa; width:34px; height:34px;
+  border-radius:50%; font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.painel-corpo { flex:1; overflow-y:auto; padding:15px; }
+.inv-card {
+  background:#111; border:1px solid #222;
+  border-radius:16px; padding:16px; margin-bottom:12px;
+}
+.inv-topo { display:flex; justify-content:space-between; margin-bottom:10px; }
+.inv-nome { font-weight:bold; font-size:15px; color:#8B5CF6; }
+.inv-status { padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold; }
+.status-ativo { background:#0d3b1a; color:#4ade80; }
+.status-finalizado { background:#1a1a1a; color:#aaa; }
+.inv-row { display:flex; justify-content:space-between; margin-bottom:5px; }
+.inv-row .il { color:#aaa; font-size:13px; }
+.inv-row .iv { font-size:13px; font-weight:bold; }
+.painel-vazio { text-align:center; color:#555; padding:40px 20px; font-size:15px; }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading"><p>A carregar...</p></div>
+
+<!-- TOPO -->
+<div class="topo">
+  <div class="topo-titulo">Bolsa de Investimento</div>
+  <button class="btn-historico" onclick="abrirHistorico()">
+    <i class="fa-solid fa-clock-rotate-left"></i> Histórico
+  </button>
+</div>
+
+<!-- PREÇO -->
+<div class="preco" id="precoAtual">125.00 Kz</div>
+<div class="status-mercado">▲ Mercado Angolano</div>
+
+<!-- GRÁFICO -->
+<div id="grafico"></div>
+
+<!-- ÁREA INVESTIMENTO -->
+<div class="section-title">Área de Investimento</div>
+<div class="vips-scroll" id="vipTabs"></div>
+<div id="vipConteudo"></div>
+
+<!-- NAVBAR -->
+<div class="bottom">
+  <a href="feed.html"><i class="fa-solid fa-house"></i><span>Início</span></a>
+  <a href="mercado.html" class="nav-ativo"><i class="fa-solid fa-chart-line"></i><span>Mercado</span></a>
+  <a href="carteira.html"><i class="fa-solid fa-wallet"></i><span>Carteira</span></a>
+  <a href="equipa.html"><i class="fa-solid fa-users"></i><span>Equipa</span></a>
+  <a href="perfil.html"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
+</div>
+
+<!-- ALERTA -->
+<div class="alerta-overlay" id="alertaOverlay">
+  <div class="alerta-box">
+    <div class="alerta-icon" id="alertaIcon"></div>
+    <h3 id="alertaTitulo"></h3>
+    <p id="alertaTexto"></p>
+    <div id="alertaBtns"></div>
+  </div>
+</div>
+
+<!-- PAINEL HISTÓRICO -->
+<div class="painel-overlay" id="painelOverlay" onclick="fecharHistorico()"></div>
+<div class="painel" id="painel">
+  <div class="painel-header">
+    <h3>📋 Meus Investimentos</h3>
+    <button class="btn-fechar-painel" onclick="fecharHistorico()">✕</button>
+  </div>
+  <div class="painel-corpo" id="painelCorpo"></div>
+</div>
+
+<script>
+window.addEventListener("load", function () {
+
+/* ==========================
+   SUPABASE
+========================== */
+const supabaseUrl = "https://tuaclpevpkqvoeggywub.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWNscGV2cGtxdm9lZ2d5d3ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3Njc2NzEsImV4cCI6MjA5NjM0MzY3MX0.ptGzyNLv0gYyq2DgbXOlBFZgK1VbKdaLAdFwLugom2A";
+const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+/* ==========================
+   DADOS VIPs
+========================== */
+const VIPS = [
+  { nome:"VIP Grátis", desbloqueio:0,      lucroPct:0.15, casaPct:0.20, dias:95,
+    niveis:[{valor:500},{valor:1000},{valor:3000},{valor:5000},{valor:7000}] },
+  { nome:"VIP 1",      desbloqueio:10000,  lucroPct:0.25, casaPct:0.25, dias:95,
+    niveis:[{valor:10000},{valor:22000},{valor:45000},{valor:70000},{valor:90000}] },
+  { nome:"VIP 2",      desbloqueio:100000, lucroPct:0.30, casaPct:0.35, dias:95,
+    niveis:[{valor:100000},{valor:125000},{valor:150000},{valor:180000},{valor:200000}] },
+  { nome:"VIP 3",      desbloqueio:250000, lucroPct:0.35, casaPct:0.40, dias:95,
+    niveis:[{valor:230000},{valor:340000},{valor:400000},{valor:500000},{valor:1000000}] },
+  { nome:"VIP 4",      desbloqueio:350000, lucroPct:0.45, casaPct:0.42, dias:95,
+    niveis:[{valor:1000000}] }
+];
+
+const IMGS = [
+  "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&q=80",
+  "https://images.unsplash.com/photo-1640340434855-6084b1f4901c?w=400&q=80",
+  "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=400&q=80",
+  "https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=400&q=80",
+  "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80"
+];
+
+/* ==========================
+   ESTADO GLOBAL
+========================== */
+let usuario = null;
+let vipAtivo = 0;
+let vipsDesbloqueados = [true,false,false,false,false];
+let alertaCallback = null;
+
+/* ==========================
+   FORMATAR
+========================== */
+function fmtKz(v) { return Number(v).toLocaleString("pt-AO") + " Kz"; }
+function fmtData(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString("pt-PT") + " " + d.toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
+}
+
+/* ==========================
+   CALCULAR LUCRO LÍQUIDO
+   Utilizador só vê este valor
+========================== */
+function lucroLiq(valor, lucroPct, casaPct) {
+  const bruto = valor * lucroPct;
+  return Math.floor(bruto - bruto * casaPct);
+}
+
+/* ==========================
+   ALERTA
+========================== */
+function alerta(icon, titulo, texto, tipo, cb) {
+  document.getElementById("alertaIcon").innerText   = icon;
+  document.getElementById("alertaTitulo").innerText = titulo;
+  document.getElementById("alertaTexto").innerText  = texto;
+  alertaCallback = cb || null;
+
+  const btns = document.getElementById("alertaBtns");
+  if (tipo === "ok") {
+    btns.innerHTML = `<button class="btn-ok" onclick="fecharAlerta()">OK</button>`;
+  } else if (tipo === "loading") {
+    btns.innerHTML = `<p style="color:#8B5CF6;font-size:13px;text-align:center;width:100%">Por favor aguarde...</p>`;
+  } else {
+    btns.innerHTML = `
+      <div class="alerta-btns">
+        <button class="btn-nao" onclick="fecharAlerta()">Não</button>
+        <button class="btn-sim" onclick="confirmarAlerta()">Sim</button>
+      </div>`;
+  }
+  document.getElementById("alertaOverlay").classList.add("show");
+}
+
+window.fecharAlerta = function() {
+  document.getElementById("alertaOverlay").classList.remove("show");
+  alertaCallback = null;
+};
+window.confirmarAlerta = function() {
+  const cb = alertaCallback;
+  fecharAlerta();
+  if (cb) cb();
+};
+
+/* ==========================
+   CARREGAR UTILIZADOR DO SUPABASE
+========================== */
+async function carregarUsuario() {
+  const cache = localStorage.getItem("usuario");
+  if (!cache || cache === "null" || cache === "undefined") {
+    window.location.replace("login.html"); return;
+  }
+
+  let userCache;
+  try { userCache = JSON.parse(cache); } catch { window.location.replace("login.html"); return; }
+
+  if (!userCache || !userCache.id) {
+    window.location.replace("login.html"); return;
+  }
+
+  // Busca dados frescos pelo ID
+  const { data, error } = await db
+    .from("usuarios").select("*").eq("id", userCache.id).single();
+
+  document.getElementById("loading").style.display = "none";
+
+  if (error || !data) {
+    window.location.replace("login.html"); return;
+  }
+
+  usuario = data;
+  localStorage.setItem("usuario", JSON.stringify(data));
+
+  // Calcular VIPs desbloqueados por ordem
+  const ordem = ["VIP Grátis","VIP 1","VIP 2","VIP 3","VIP 4"];
+  const idx   = ordem.indexOf(usuario.vip || "VIP Grátis");
+  for (let i = 0; i <= Math.max(idx,0); i++) vipsDesbloqueados[i] = true;
+
+  renderTabs();
+  renderVip(0);
+}
+
+/* ==========================
+   RENDER TABS
+========================== */
+function renderTabs() {
+  const cont = document.getElementById("vipTabs");
+  cont.innerHTML = "";
+  VIPS.forEach((v,i) => {
+    const div = document.createElement("div");
+    div.className = "vip-tab" + (i===0 ? " ativo" : "");
+    div.innerHTML = vipsDesbloqueados[i] ? v.nome : `<i class="fa-solid fa-lock"></i> ${v.nome}`;
+    div.onclick = () => selecionarVip(i);
+    cont.appendChild(div);
+  });
+}
+
+/* ==========================
+   SELECIONAR VIP
+========================== */
+function selecionarVip(idx) {
+  vipAtivo = idx;
+  document.querySelectorAll(".vip-tab").forEach((t,i) => t.classList.toggle("ativo", i===idx));
+  renderVip(idx);
+}
+
+/* ==========================
+   RENDER VIP
+========================== */
+function renderVip(idx) {
+  const vip      = VIPS[idx];
+  const bloqueado = !vipsDesbloqueados[idx];
+  let html = "";
+
+  // Banner bloqueado
+  if (bloqueado) {
+    html += `
+      <div class="banner-bloqueado">
+        <div>
+          <h3>🔒 ${vip.nome} Bloqueado</h3>
+          <p>Desbloqueio: <b>${fmtKz(vip.desbloqueio)}</b><br>Sai do saldo investimento</p>
+        </div>
+        <button class="btn-desbloquear" onclick="pedirDesbloqueio(${idx})">Desbloquear</button>
+      </div>`;
+  }
+
+  // Níveis
+  vip.niveis.forEach((nivel, ni) => {
+    const liq   = lucroLiq(nivel.valor, vip.lucroPct, vip.casaPct);
+    const total = liq * vip.dias;
+    const img   = IMGS[ni % IMGS.length];
+
+    html += `
+      <div class="nivel-card">
+        <img src="${img}" alt="Nível ${ni+1}"
+          onerror="this.src='${IMGS[0]}'">
+        ${bloqueado ? '<div class="bloqueado-overlay"><i class="fa-solid fa-lock"></i></div>' : ""}
+        <div class="nivel-info">
+          <div class="nivel-nome">${vip.nome} — Nível ${ni+1}</div>
+          <div class="nivel-row">
+            <span class="label">Ganho Diário</span>
+            <span class="valor">${fmtKz(liq)}</span>
+          </div>
+          <div class="nivel-row">
+            <span class="label">Ganho Total</span>
+            <span class="valor">${fmtKz(total)}</span>
+          </div>
+          <div class="nivel-row">
+            <span class="label">Prazo</span>
+            <span class="valor prazo">${vip.dias} dias</span>
+          </div>
+          <button
+            class="btn-investir"
+            ${bloqueado ? "disabled" : ""}
+            onclick="pedirInvestimento(${idx},${ni},${nivel.valor},${liq})">
+            INVESTIR ${fmtKz(nivel.valor)}
+          </button>
+        </div>
+      </div>`;
+  });
+
+  document.getElementById("vipConteudo").innerHTML = html;
+}
+
+/* ==========================
+   PEDIR INVESTIMENTO
+========================== */
+window.pedirInvestimento = function(vipIdx, nivelIdx, valor, liq) {
+  if (!usuario) { window.location.replace("login.html"); return; }
+
+  const vip = VIPS[vipIdx];
+  alerta("💰","Confirmar Investimento",
+    `Investir ${fmtKz(valor)} no ${vip.nome} — Nível ${nivelIdx+1}?\n\nGanho diário: ${fmtKz(liq)}\nGanho total: ${fmtKz(liq * vip.dias)}\n\nO valor sai do saldo investimento.`,
+    "confirm", () => fazerInvestimento(vipIdx, nivelIdx, valor, liq));
+};
+
+/* ==========================
+   FAZER INVESTIMENTO
+========================== */
+async function fazerInvestimento(vipIdx, nivelIdx, valor, liq) {
+  alerta("⏳","A Investir...","Por favor aguarde enquanto processamos.","loading");
+
+  // Busca saldo fresco
+  const { data: user, error } = await db
+    .from("usuarios").select("*").eq("id", usuario.id).single();
+
+  if (error || !user) {
+    alerta("❌","Erro","Não foi possível carregar os seus dados.","ok"); return;
+  }
+
+  const saldoAtual = Number(user.saldo_investimento || 0);
+
+  // Verifica saldo
+  if (saldoAtual < valor) {
+    alerta("❌","Saldo Insuficiente",
+      `O seu saldo investimento é de ${fmtKz(saldoAtual)}.\n\nPrecisa de ${fmtKz(valor)} para investir neste nível.`,
+      "ok"); return;
+  }
+
+  const vip = VIPS[vipIdx];
+  const novoSaldo = saldoAtual - valor;
+
+  // Atualiza saldo
+  const { error: errUp } = await db.from("usuarios").update({
+    saldo_investimento: novoSaldo,
+    total_investido: Number(user.total_investido || 0) + valor
+  }).eq("id", user.id);
+
+  if (errUp) {
+    alerta("❌","Erro","Não foi possível processar o investimento.","ok"); return;
+  }
+
+  // Cria registo investimento
+  await db.from("investimentos").insert({
+    usuario_id:       user.id,
+    vip:              vip.nome,
+    nivel:            "Nível " + (nivelIdx+1),
+    valor_investido:  valor,
+    lucro_diario:     liq,
+    dias_total:       vip.dias,
+    dias_restantes:   vip.dias,
+    status:           "ativo",
+    criado_em:        new Date().toISOString(),
+    ultimo_pagamento: new Date().toISOString()
+  });
+
+  // Atualiza cache
+  usuario.saldo_investimento = novoSaldo;
+  localStorage.setItem("usuario", JSON.stringify(usuario));
+
+  alerta("✅","Investimento Realizado!",
+    `Investiu ${fmtKz(valor)} no ${vip.nome} — Nível ${nivelIdx+1}.\n\nGanho diário: ${fmtKz(liq)}\nO lucro será creditado no saldo disponível a cada 24h.`,
+    "ok");
+}
+
+/* ==========================
+   PEDIR DESBLOQUEIO
+========================== */
+window.pedirDesbloqueio = function(vipIdx) {
+  if (!usuario) { window.location.replace("login.html"); return; }
+
+  // Verifica ordem obrigatória
+  if (vipIdx > 0 && !vipsDesbloqueados[vipIdx-1]) {
+    alerta("🔒","Ordem Obrigatória",
+      `Tens de desbloquear o ${VIPS[vipIdx-1].nome} primeiro.`,"ok"); return;
+  }
+
+  const vip = VIPS[vipIdx];
+  alerta("🔓","Desbloquear " + vip.nome,
+    `Pretende desbloquear o ${vip.nome}?\n\nCusto: ${fmtKz(vip.desbloqueio)}\nO valor sai do saldo investimento.`,
+    "confirm", () => fazerDesbloqueio(vipIdx));
+};
+
+/* ==========================
+   FAZER DESBLOQUEIO
+========================== */
+async function fazerDesbloqueio(vipIdx) {
+  alerta("⏳","A Desbloquear...","Por favor aguarde.","loading");
+
+  const { data: user, error } = await db
+    .from("usuarios").select("*").eq("id", usuario.id).single();
+
+  if (error || !user) {
+    alerta("❌","Erro","Não foi possível carregar os seus dados.","ok"); return;
+  }
+
+  const vip = VIPS[vipIdx];
+  const saldoAtual = Number(user.saldo_investimento || 0);
+
+  // Verifica saldo
+  if (saldoAtual < vip.desbloqueio) {
+    alerta("❌","Saldo Insuficiente",
+      `O seu saldo investimento é de ${fmtKz(saldoAtual)}.\n\nPrecisa de ${fmtKz(vip.desbloqueio)} para desbloquear o ${vip.nome}.`,
+      "ok"); return;
+  }
+
+  const novoSaldo = saldoAtual - vip.desbloqueio;
+
+  // Atualiza saldo e VIP do utilizador
+  const { error: errUp } = await db.from("usuarios").update({
+    saldo_investimento: novoSaldo,
+    vip: vip.nome
+  }).eq("id", user.id);
+
+  if (errUp) {
+    alerta("❌","Erro","Não foi possível processar o desbloqueio.","ok"); return;
+  }
+
+  // Atualiza cache
+  usuario.saldo_investimento = novoSaldo;
+  usuario.vip = vip.nome;
+  localStorage.setItem("usuario", JSON.stringify(usuario));
+
+  // Marca VIP como desbloqueado
+  vipsDesbloqueados[vipIdx] = true;
+
+  // Atualiza UI
+  renderTabs();
+  selecionarVip(vipIdx);
+
+  alerta("🎉",vip.nome + " Desbloqueado!",
+    `Parabéns! Agora podes investir em todos os níveis do ${vip.nome}.`,"ok");
+}
+
+/* ==========================
+   HISTÓRICO
+========================== */
+window.abrirHistorico = async function() {
+  document.getElementById("painelOverlay").classList.add("show");
+  document.getElementById("painel").classList.add("show");
+  document.getElementById("painelCorpo").innerHTML = `<div class="painel-vazio">A carregar...</div>`;
+
+  if (!usuario) return;
+
+  const { data, error } = await db
+    .from("investimentos").select("*")
+    .eq("usuario_id", usuario.id)
+    .order("criado_em", {ascending:false});
+
+  if (error || !data || data.length === 0) {
+    document.getElementById("painelCorpo").innerHTML =
+      `<div class="painel-vazio">Ainda não tens investimentos.</div>`; return;
+  }
+
+  let html = "";
+  data.forEach(inv => {
+    html += `
+      <div class="inv-card">
+        <div class="inv-topo">
+          <span class="inv-nome">${inv.vip} — ${inv.nivel}</span>
+          <span class="inv-status ${inv.status==='ativo'?'status-ativo':'status-finalizado'}">
+            ${inv.status==='ativo'?'Ativo':'Finalizado'}
+          </span>
+        </div>
+        <div class="inv-row"><span class="il">Valor Investido</span><span class="iv">${fmtKz(inv.valor_investido)}</span></div>
+        <div class="inv-row"><span class="il">Ganho Diário</span><span class="iv" style="color:#00ff73">${fmtKz(inv.lucro_diario)}</span></div>
+        <div class="inv-row"><span class="il">Dias Restantes</span><span class="iv" style="color:#a78bfa">${inv.dias_restantes} dias</span></div>
+        <div class="inv-row"><span class="il">Data</span><span class="iv">${fmtData(inv.criado_em)}</span></div>
+      </div>`;
+  });
+  document.getElementById("painelCorpo").innerHTML = html;
+};
+
+window.fecharHistorico = function() {
+  document.getElementById("painelOverlay").classList.remove("show");
+  document.getElementById("painel").classList.remove("show");
+};
+
+/* ==========================
+   GRÁFICO (IGUAL AO ORIGINAL)
+========================== */
+const largura = Math.min(450, window.innerWidth - 40);
+const chart = LightweightCharts.createChart(document.getElementById("grafico"), {
+  width:largura, height:280,
+  layout:{background:{color:"#0b0b0b"}, textColor:"#FFFFFF"},
+  grid:{vertLines:{color:"#111"}, horzLines:{color:"#111"}},
+  rightPriceScale:{borderColor:"#222"}, timeScale:{borderColor:"#222"}
+});
+const candleSeries = chart.addCandlestickSeries({
+  upColor:"#00ff73", downColor:"#ff3b30", borderVisible:false,
+  wickUpColor:"#00ff73", wickDownColor:"#ff3b30"
+});
+candleSeries.setData([
+  {time:"2025-01-01",open:100,high:110,low:95, close:105},
+  {time:"2025-01-02",open:105,high:118,low:100,close:115},
+  {time:"2025-01-03",open:115,high:120,low:108,close:110},
+  {time:"2025-01-04",open:110,high:130,low:105,close:125}
+]);
+let preco = 125;
+setInterval(() => {
+  const open=preco, close=open+((Math.random()-0.5)*10);
+  const high=Math.max(open,close)+Math.random()*5;
+  const low=Math.min(open,close)-Math.random()*5;
+  candleSeries.update({time:Math.floor(Date.now()/1000),open:+open.toFixed(2),high:+high.toFixed(2),low:+low.toFixed(2),close:+close.toFixed(2)});
+  preco=close;
+  document.getElementById("precoAtual").innerText = preco.toFixed(2)+" Kz";
+}, 3000);
+window.addEventListener("resize",()=>chart.applyOptions({width:Math.min(450,window.innerWidth-40)}));
+
+/* ==========================
+   INICIAR
+========================== */
+carregarUsuario();
+
+}); // fim window.load
+</script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bem-vindo</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    background:radial-gradient(circle at center,#1a2440 0%,#0b1020 70%,#05070f 100%);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    color:#fff;
+    position:relative;
+}
+
+/* Órbitas mais leves */
+.orbit{
+    position:absolute;
+    border-radius:50%;
+    border:1px solid rgba(212,175,55,.12);
+    animation:spin linear infinite;
+}
+
+.orbit.r1{
+    width:280px;
+    height:280px;
+    animation-duration:15s;
+}
+
+.orbit.r2{
+    width:420px;
+    height:420px;
+    animation-duration:25s;
+}
+
+@keyframes spin{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
+}
+
+/* Partículas */
+.particle{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(212,175,55,.6);
+    animation:floatUp linear infinite;
+}
+
+@keyframes floatUp{
+    0%{
+        transform:translateY(100vh);
+        opacity:0;
+    }
+    20%{
+        opacity:1;
+    }
+    80%{
+        opacity:1;
+    }
+    100%{
+        transform:translateY(-20vh);
+        opacity:0;
+    }
+}
+
+/* Logo */
+.logo-wrap{
+    z-index:10;
+    text-align:center;
+    animation:fadeIn .8s ease;
+}
+
+.logo-wrap img{
+    width:140px;
+    max-width:40vw;
+}
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:scale(.9);
+    }
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+}
+
+/* Texto */
+.tagline{
+    margin-top:20px;
+    font-size:1rem;
+    color:rgba(255,255,255,.85);
+    padding:0 20px;
+}
+
+/* Barra */
+.progress-track{
+    position:absolute;
+    bottom:50px;
+    left:50%;
+    transform:translateX(-50%);
+    width:180px;
+    height:4px;
+    background:rgba(255,255,255,.1);
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.progress-fill{
+    height:100%;
+    width:0;
+    background:linear-gradient(90deg,#bfa64f,#ffe08a);
+    animation:load 1.5s linear forwards;
+}
+
+@keyframes load{
+    to{
+        width:100%;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="orbit r1"></div>
+<div class="orbit r2"></div>
+
+<div id="particles"></div>
+
+<div class="logo-wrap">
+    <img src="investpro-logo.png" alt="Logo">
+    <div class="tagline">
+        Invista com inteligência. Cresça com confiança.
+    </div>
+</div>
+
+<div class="progress-track">
+    <div class="progress-fill"></div>
+</div>
+
+<script>
+// Apenas 5 partículas para ficar leve
+const container = document.getElementById('particles');
+
+for(let i=0;i<5;i++){
+    const p=document.createElement('div');
+
+    p.className='particle';
+
+    const size=2+Math.random()*3;
+
+    p.style.width=size+'px';
+    p.style.height=size+'px';
+    p.style.left=Math.random()*100+'vw';
+    p.style.animationDuration=(8+Math.random()*5)+'s';
+    p.style.animationDelay=Math.random()*3+'s';
+
+    container.appendChild(p);
+}
+
+// Redireciona rápido
+window.addEventListener('load',()=>{
+    setTimeout(()=>{
+        window.location.replace('login.html');
+    },1500);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invest Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+
+body { background:#050505; color:#fff; padding:20px; padding-bottom:100px; }
+
+.top { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; }
+.logo { font-size:26px; font-weight:bold; }
+.logo span { color:#8B5CF6; }
+
+.user { display:flex; align-items:center; gap:15px; margin-bottom:25px; }
+.avatar {
+  width:60px; height:60px; border-radius:50%;
+  background:linear-gradient(135deg,#8B5CF6,#4F46E5);
+  display:flex; justify-content:center; align-items:center;
+  font-size:24px; flex-shrink:0;
+}
+.user-info p { color:#aaa; font-size:14px; margin-bottom:4px; }
+.user-info h2 { font-size:20px; font-weight:bold; }
+.vip-badge {
+  display:inline-block; margin-top:5px;
+  padding:3px 12px;
+  background:linear-gradient(90deg,#8B5CF6,#4F46E5);
+  border-radius:20px; font-size:12px; font-weight:bold;
+}
+
+.saldos { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px; }
+.card {
+  background:#0d0d14; padding:20px;
+  border-radius:20px; border:1px solid rgba(139,92,246,0.2);
+}
+.card p { color:#aaa; font-size:13px; margin-bottom:8px; }
+.card h2 { font-size:22px; font-weight:bold; color:#fff; }
+.card .icon { font-size:20px; margin-bottom:10px; }
+
+.lucro-card {
+  background:linear-gradient(135deg,#1a0d2e,#0d0d14);
+  border:1px solid rgba(139,92,246,0.4);
+  border-radius:20px; padding:20px; margin-bottom:25px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.lucro-card .left p { color:#aaa; font-size:13px; margin-bottom:8px; }
+.lucro-card .left h2 { font-size:26px; font-weight:bold; color:#00ff73; }
+.lucro-card .right { font-size:36px; opacity:0.4; }
+
+.banner {
+  background:#0d0d14; border-radius:25px; padding:25px;
+  margin-bottom:25px; border:1px solid rgba(139,92,246,0.25);
+}
+.banner h2 { font-size:22px; margin-bottom:8px; }
+.banner p { color:#aaa; line-height:1.7; font-size:14px; }
+.btn-market {
+  display:block; margin-top:18px; padding:14px;
+  text-align:center; border-radius:15px; text-decoration:none;
+  font-weight:bold; color:white;
+  background:linear-gradient(90deg,#8B5CF6,#4F46E5);
+}
+
+.market-summary { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px; }
+.box {
+  background:#0d0d14; padding:20px;
+  border-radius:20px; border:1px solid rgba(139,92,246,0.2);
+}
+.box p { color:#aaa; margin-bottom:10px; font-size:13px; }
+.box h2 { font-size:26px; }
+
+.green { color:#00ff73; }
+.red   { color:#ff4d4d; }
+
+.section-title { font-size:20px; font-weight:bold; margin-bottom:15px; }
+.stock {
+  background:#0d0d14; border-radius:20px; padding:18px;
+  margin-bottom:12px; display:flex;
+  justify-content:space-between; align-items:center;
+  border:1px solid rgba(139,92,246,0.2);
+}
+.stock-name { font-size:17px; font-weight:bold; }
+.stock-price { text-align:right; }
+
+.bottom {
+  position:fixed; bottom:0; left:0; width:100%;
+  background:#090909; border-top:1px solid #222;
+  display:flex; justify-content:space-around;
+  padding:15px 0; z-index:999;
+}
+.bottom a {
+  display:flex; flex-direction:column; align-items:center;
+  gap:6px; font-size:12px; color:#aaa; text-decoration:none;
+}
+.bottom i { font-size:22px; }
+.active { color:#8B5CF6 !important; }
+
+.loading-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:#050505; display:flex;
+  justify-content:center; align-items:center; z-index:9999;
+}
+.loading-overlay p { color:#8B5CF6; font-size:18px; font-weight:bold; }
+
+/* TOAST DE GANHOS */
+.toast-ganhos {
+  position:fixed; top:20px; left:50%; transform:translateX(-50%);
+  background:#0d3b1a; border:1px solid #22c55e;
+  color:#4ade80; padding:12px 20px; border-radius:14px;
+  font-size:14px; font-weight:bold; z-index:9998;
+  display:none; text-align:center; white-space:nowrap;
+  box-shadow:0 4px 20px rgba(34,197,94,0.3);
+}
+.toast-ganhos.show { display:block; }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading"><p>A carregar...</p></div>
+
+<!-- TOAST GANHOS -->
+<div class="toast-ganhos" id="toastGanhos"></div>
+
+<!-- TOPO -->
+<div class="top">
+  <div class="logo">INVEST <span>PRO</span></div>
+</div>
+
+<!-- UTILIZADOR -->
+<div class="user">
+  <div class="avatar"><i class="fa-solid fa-user"></i></div>
+  <div class="user-info">
+    <p>Bem-vindo</p>
+    <h2 id="nomeUsuario">—</h2>
+    <span class="vip-badge" id="vipUsuario">VIP Grátis</span>
+  </div>
+</div>
+
+<!-- SALDOS -->
+<div class="saldos">
+  <div class="card">
+    <div class="icon">💰</div>
+    <p>Saldo Disponível</p>
+    <h2 id="saldoDisponivel">0 Kz</h2>
+  </div>
+  <div class="card">
+    <div class="icon">📈</div>
+    <p>Saldo Investimento</p>
+    <h2 id="saldoInvestimento">0 Kz</h2>
+  </div>
+</div>
+
+<!-- LUCRO TOTAL -->
+<div class="lucro-card">
+  <div class="left">
+    <p>Lucro Total Acumulado</p>
+    <h2 id="lucroTotal">0 Kz</h2>
+  </div>
+  <div class="right"><i class="fa-solid fa-chart-line"></i></div>
+</div>
+
+<!-- BANNER -->
+<div class="banner">
+  <h2>Mercado Angolano</h2>
+  <p>Acompanhe o mercado, analise empresas e acompanhe a evolução dos ativos disponíveis na plataforma.</p>
+  <a href="mercado.html" class="btn-market">IR PARA O MERCADO</a>
+</div>
+
+<!-- RESUMO MERCADO -->
+<div class="market-summary">
+  <div class="box"><p>Mercado Hoje</p><h2 class="green" id="mercado">+2.34%</h2></div>
+  <div class="box"><p>Operações</p><h2 id="operacoes">127</h2></div>
+</div>
+
+<!-- EMPRESAS -->
+<div class="section-title">Empresas em Destaque</div>
+<div class="stock"><div class="stock-name">UNITEL</div><div class="stock-price"><h3 id="unitel" class="green">+3.20%</h3></div></div>
+<div class="stock"><div class="stock-name">BAI</div><div class="stock-price"><h3 id="bai" class="green">+1.15%</h3></div></div>
+<div class="stock"><div class="stock-name">BFA</div><div class="stock-price"><h3 id="bfa" class="red">-0.85%</h3></div></div>
+<div class="stock"><div class="stock-name">ENSA</div><div class="stock-price"><h3 id="ensa" class="green">+2.90%</h3></div></div>
+
+<!-- NAVBAR -->
+<div class="bottom">
+  <a href="feed.html" class="active"><i class="fa-solid fa-house"></i><span>Início</span></a>
+  <a href="mercado.html"><i class="fa-solid fa-chart-line"></i><span>Mercado</span></a>
+  <a href="carteira.html"><i class="fa-solid fa-wallet"></i><span>Carteira</span></a>
+  <a href="equipa.html"><i class="fa-solid fa-users"></i><span>Equipa</span></a>
+  <a href="perfil.html"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+/* ==========================
+   SUPABASE
+========================== */
+const supabaseUrl = "https://tuaclpevpkqvoeggywub.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWNscGV2cGtxdm9lZ2d5d3ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3Njc2NzEsImV4cCI6MjA5NjM0MzY3MX0.ptGzyNLv0gYyq2DgbXOlBFZgK1VbKdaLAdFwLugom2A";
+const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+/* ==========================
+   BLOQUEAR BOTÃO VOLTAR
+   Impede que o utilizador logado
+   seja reenviado ao login ao
+   pressionar o botão físico de
+   retroceder no telemóvel.
+========================== */
+(function bloquearVoltar() {
+  history.pushState({ pagina: "feed" }, "", window.location.href);
+  history.pushState({ pagina: "feed" }, "", window.location.href);
+
+  window.addEventListener("popstate", function () {
+    const user = localStorage.getItem("usuario");
+    if (user && user !== "null" && user !== "undefined") {
+      history.pushState({ pagina: "feed" }, "", window.location.href);
+    } else {
+      window.location.replace("login.html");
+    }
+  });
+})();
+
+/* ==========================
+   FORMATAR
+========================== */
+function fmtKz(v) {
+  return Number(v || 0).toLocaleString("pt-AO") + " Kz";
+}
+
+/* ==========================
+   GET USER DO CACHE
+========================== */
+function getUser() {
+  const u = localStorage.getItem("usuario");
+  if (!u || u === "undefined" || u === "null") return null;
+  try { return JSON.parse(u); } catch { return null; }
+}
+
+/* ==========================
+   MOSTRAR DADOS NA PÁGINA
+========================== */
+function mostrarDados(data) {
+  document.getElementById("nomeUsuario").innerText       = data.nome || "Utilizador";
+  document.getElementById("vipUsuario").innerText        = data.vip  || "VIP Grátis";
+  document.getElementById("saldoDisponivel").innerText   = fmtKz(data.saldo_disponivel);
+  document.getElementById("saldoInvestimento").innerText = fmtKz(data.saldo_investimento);
+  document.getElementById("lucroTotal").innerText        = fmtKz(data.lucro);
+}
+
+/* ==========================
+   PROCESSAR GANHOS (24H)
+   Roda sempre ao abrir o feed
+   Credita lucro diário no saldo_disponivel
+========================== */
+async function processarGanhos(user) {
+  const { data: lista } = await db
+    .from("investimentos")
+    .select("*")
+    .eq("usuario_id", user.id)
+    .eq("status", "ativo");
+
+  if (!lista || lista.length === 0) return 0;
+
+  let totalGanho = 0;
+
+  for (const inv of lista) {
+    const agora       = Date.now();
+    const ultimo      = new Date(inv.ultimo_pagamento).getTime();
+    const msDia       = 86400000; // 24h em ms
+    const diasPassados = Math.floor((agora - ultimo) / msDia);
+
+    if (diasPassados <= 0) continue;
+
+    const ganho     = diasPassados * Number(inv.lucro_diario);
+    totalGanho     += ganho;
+
+    let restantes   = Number(inv.dias_restantes) - diasPassados;
+    if (restantes < 0) restantes = 0;
+
+    // Atualiza investimento
+    await db.from("investimentos").update({
+      dias_restantes:   restantes,
+      ultimo_pagamento: new Date().toISOString(),
+      status:           restantes <= 0 ? "finalizado" : "ativo"
+    }).eq("id", inv.id);
+  }
+
+  if (totalGanho > 0) {
+    // Busca saldo mais recente antes de atualizar
+    const { data: fresh } = await db
+      .from("usuarios")
+      .select("saldo_disponivel, lucro")
+      .eq("id", user.id)
+      .single();
+
+    const novoDisponivel = Number(fresh.saldo_disponivel || 0) + totalGanho;
+    const novoLucro      = Number(fresh.lucro || 0) + totalGanho;
+
+    await db.from("usuarios").update({
+      saldo_disponivel: novoDisponivel,
+      lucro:            novoLucro
+    }).eq("id", user.id);
+  }
+
+  return totalGanho;
+}
+
+/* ==========================
+   TOAST DE GANHOS
+========================== */
+function mostrarToast(ganho) {
+  if (ganho <= 0) return;
+  const toast = document.getElementById("toastGanhos");
+  toast.innerText = `💰 +${fmtKz(ganho)} creditados no saldo disponível!`;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 4000);
+}
+
+/* ==========================
+   CARREGAR UTILIZADOR
+========================== */
+async function carregarUsuario() {
+  const cache = getUser();
+
+  // Se não estiver logado → redireciona
+  if (!cache || !cache.id) {
+    localStorage.removeItem("usuario");
+    window.location.replace("login.html");
+    return;
+  }
+
+  // Busca dados frescos do Supabase pelo ID
+  const { data, error } = await db
+    .from("usuarios")
+    .select("*")
+    .eq("id", cache.id)
+    .single();
+
+  document.getElementById("loading").style.display = "none";
+
+  if (error || !data) {
+    // Usa cache se Supabase falhar
+    mostrarDados(cache);
+    return;
+  }
+
+  // Processa ganhos das últimas 24h
+  const ganho = await processarGanhos(data);
+
+  // Busca dados atualizados após processar ganhos
+  const { data: atualizado } = await db
+    .from("usuarios")
+    .select("*")
+    .eq("id", data.id)
+    .single();
+
+  const final = atualizado || data;
+
+  // Atualiza cache
+  localStorage.setItem("usuario", JSON.stringify(final));
+
+  // Mostra na página
+  mostrarDados(final);
+
+  // Toast se teve ganhos
+  mostrarToast(ganho);
+}
+
+/* ==========================
+   INICIAR
+========================== */
+carregarUsuario();
+
+/* ==========================
+   ATUALIZA AO VOLTAR DA PÁGINA
+   (quando navega de outra página
+   de volta ao feed via navbar)
+========================== */
+window.addEventListener("pageshow", function (e) {
+  const u = localStorage.getItem("usuario");
+  // Só redireciona se realmente não tiver sessão
+  if (!u || u === "null" || u === "undefined") {
+    window.location.replace("login.html");
+    return;
+  }
+  // Se vier do bfcache (cache do browser), recarrega dados
+  if (e.persisted) {
+    carregarUsuario();
+  }
+});
+
+/* ==========================
+   MERCADO — ANIMAÇÃO
+========================== */
+let mercado=2.34, operacoes=127, unitel=3.20, bai=1.15, bfa=-0.85, ensa=2.90;
+
+function atualizarMercado() {
+  mercado   += (Math.random()*0.80)-0.40;
+  operacoes += Math.floor((Math.random()*15)+1);
+  unitel    += (Math.random()*0.50)-0.25;
+  bai       += (Math.random()*0.50)-0.25;
+  bfa       += (Math.random()*0.50)-0.25;
+  ensa      += (Math.random()*0.50)-0.25;
+
+  const mEl = document.getElementById("mercado");
+  mEl.innerText = (mercado>=0?"+":"")+mercado.toFixed(2)+"%";
+  mEl.className = mercado>=0?"green":"red";
+  document.getElementById("operacoes").innerText = operacoes;
+
+  const uEl = document.getElementById("unitel");
+  uEl.innerText = (unitel>=0?"+":"")+unitel.toFixed(2)+"%";
+  uEl.className = unitel>=0?"green":"red";
+
+  const bEl = document.getElementById("bai");
+  bEl.innerText = (bai>=0?"+":"")+bai.toFixed(2)+"%";
+  bEl.className = bai>=0?"green":"red";
+
+  const bfEl = document.getElementById("bfa");
+  bfEl.innerText = (bfa>=0?"+":"")+bfa.toFixed(2)+"%";
+  bfEl.className = bfa>=0?"green":"red";
+
+  const eEl = document.getElementById("ensa");
+  eEl.innerText = (ensa>=0?"+":"")+ensa.toFixed(2)+"%";
+  eEl.className = ensa>=0?"green":"red";
+}
+
+setInterval(atualizarMercado, 3000);
+
+</script>
+</body>
+</html>
+

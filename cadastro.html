@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #0A0A0A;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  width: 100%;
+  max-width: 400px;
+  padding: 25px;
+  background: #121212;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.logo {
+  text-align: center;
+  color: #8B5CF6;
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #888;
+  margin-bottom: 25px;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #1C1C1C;
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+}
+
+input::placeholder {
+  color: #555;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(90deg, #8B5CF6, #3B82F6);
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.link {
+  text-align: center;
+  margin-top: 15px;
+  color: #aaa;
+}
+
+.link a {
+  color: #8B5CF6;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.msg {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  display: none;
+  text-align: center;
+}
+
+.msg.error {
+  background: #3b0d0d;
+  color: #ff6b6b;
+}
+
+.msg.success {
+  background: #0d3b1a;
+  color: #4ade80;
+}
+
+.msg.loading {
+  background: #1e1b3a;
+  color: #a78bfa;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="logo">INVEST PRO</div>
+  <div class="subtitle">Crie sua conta e comece agora</div>
+
+  <div id="cadastroForm">
+
+    <input id="nome" type="text" placeholder="Nome Completo">
+    <input id="telefone" type="tel" placeholder="Telefone">
+    <input id="password" type="password" placeholder="Palavra-passe">
+    <input id="confirmar" type="password" placeholder="Confirmar Palavra-passe">
+    <input id="convite" type="text" placeholder="Codigo de Convite (Opcional)">
+
+    <button id="btnCadastrar" onclick="cadastrar()">Criar Conta</button>
+
+    <div id="msg" class="msg"></div>
+
+  </div>
+
+  <div class="link">
+    Ja tem conta?
+    <a href="login.html">Entrar</a>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const supabaseUrl = "https://tuaclpevpkqvoeggywub.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWNscGV2cGtxdm9lZ2d5d3ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3Njc2NzEsImV4cCI6MjA5NjM0MzY3MX0.ptGzyNLv0gYyq2DgbXOlBFZgK1VbKdaLAdFwLugom2A";
+const clientDB = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+function showMsg(text, type) {
+  var msg = document.getElementById("msg");
+  msg.style.display = "block";
+  msg.className = "msg " + type;
+  msg.innerText = text;
+}
+
+function gerarCodigo() {
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  var codigo = "";
+  for (var i = 0; i < 8; i++) {
+    codigo += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return codigo;
+}
+
+async function cadastrar() {
+
+  var nome      = document.getElementById("nome").value.trim();
+  var telefone  = document.getElementById("telefone").value.trim();
+  var password  = document.getElementById("password").value;
+  var confirmar = document.getElementById("confirmar").value;
+  var convite   = document.getElementById("convite").value.trim().toUpperCase();
+  var btn       = document.getElementById("btnCadastrar");
+
+  if (!nome)     { showMsg("Preencha o nome completo", "error"); return; }
+  if (!telefone) { showMsg("Preencha o telefone", "error"); return; }
+  if (!password) { showMsg("Preencha a palavra-passe", "error"); return; }
+  if (password.length < 6) { showMsg("A palavra-passe deve ter pelo menos 6 caracteres", "error"); return; }
+  if (password !== confirmar) { showMsg("As palavras-passe nao coincidem", "error"); return; }
+
+  btn.disabled = true;
+  showMsg("A criar conta...", "loading");
+
+  try {
+
+    // 1. Verifica se o telefone ja esta registado
+    var checkTel = await clientDB.from("usuarios").select("telefone").eq("telefone", telefone);
+    if (checkTel.data && checkTel.data.length > 0) {
+      showMsg("Este telefone ja esta registado", "error");
+      btn.disabled = false;
+      return;
+    }
+
+    // 2. Verifica o codigo de convite (se foi preenchido)
+    var convidadoPor = null;
+    if (convite !== "") {
+      var checkConvite = await clientDB.from("usuarios").select("id").eq("codigo_convite", convite).single();
+      if (!checkConvite.data) {
+        showMsg("Codigo de convite invalido", "error");
+        btn.disabled = false;
+        return;
+      }
+      convidadoPor = checkConvite.data.id;
+    }
+
+    // 3. Gera codigo de convite unico para o novo utilizador
+    var codigoNovo = gerarCodigo();
+    var codigoUnico = false;
+    while (!codigoUnico) {
+      var checkCod = await clientDB.from("usuarios").select("id").eq("codigo_convite", codigoNovo);
+      if (!checkCod.data || checkCod.data.length === 0) {
+        codigoUnico = true;
+      } else {
+        codigoNovo = gerarCodigo();
+      }
+    }
+
+    // 4. Cria o novo utilizador
+    var insert = await clientDB.from("usuarios").insert([{
+      nome:               nome,
+      telefone:           telefone,
+      password:           password,
+      saldo_investimento: 0,
+      saldo_disponivel:   0,
+      lucro:              0,
+      total_investido:    0,
+      ganhos_convites:    0,
+      vip:                "VIP Gratis",
+      codigo_convite:     codigoNovo,
+      convite_usado:      convite || null
+    }]).select();
+
+    if (insert.error) {
+      showMsg(insert.error.message, "error");
+      btn.disabled = false;
+      return;
+    }
+
+    if (!insert.data || insert.data.length === 0) {
+      showMsg("Erro ao criar conta. Tente novamente.", "error");
+      btn.disabled = false;
+      return;
+    }
+
+    var novoUser = insert.data[0];
+
+    // 5. Regista na tabela equipa (vincula o convidado ao dono do codigo)
+    if (convidadoPor) {
+      await clientDB.from("equipa").insert([{
+        dono_id:        convidadoPor,
+        convidado_id:   novoUser.id,
+        convidado_nome: novoUser.nome,
+        convidado_tel:  novoUser.telefone,
+        codigo_usado:   convite,
+        criado_em:      new Date().toISOString()
+      }]);
+    }
+
+    // 6. Guarda no localStorage
+    localStorage.setItem("usuario", JSON.stringify(novoUser));
+
+    showMsg("Conta criada com sucesso! A redirecionar...", "success");
+
+    setTimeout(function() {
+      window.location.href = "feed.html";
+    }, 1500);
+
+  } catch(err) {
+    showMsg("Erro inesperado: " + err.message, "error");
+    btn.disabled = false;
+  }
+
+}
+
+</script>
+</body>
+</html>

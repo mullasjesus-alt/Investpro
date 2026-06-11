@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+body { background:#050505; color:#fff; padding-bottom:100px; }
+
+/* ── LOADING ── */
+.loading-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:#050505; display:flex; justify-content:center;
+  align-items:center; z-index:9999;
+}
+.loading-overlay p { color:#8B5CF6; font-size:18px; font-weight:bold; }
+
+/* ── TOPO FIXO ── */
+.topo-fixo {
+  position:sticky; top:0; z-index:100;
+  background:rgba(5,5,5,0.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid #1a1a1a;
+  padding:18px 20px 16px;
+  display:flex; align-items:center; gap:16px;
+}
+.foto-wrapper {
+  position:relative; flex-shrink:0;
+}
+.foto-avatar {
+  width:56px; height:56px; border-radius:50%;
+  background:linear-gradient(135deg,#8B5CF6,#4F46E5);
+  display:flex; justify-content:center; align-items:center;
+  font-size:22px; color:#fff; overflow:hidden; border:2px solid #8B5CF6;
+}
+.foto-avatar img {
+  width:100%; height:100%; object-fit:cover; border-radius:50%;
+}
+.topo-info h2 { font-size:18px; font-weight:bold; }
+.topo-info p  { color:#aaa; font-size:13px; margin-top:2px; }
+.vip-pill {
+  display:inline-block; margin-top:4px;
+  padding:2px 10px;
+  background:linear-gradient(90deg,#8B5CF6,#4F46E5);
+  border-radius:20px; font-size:11px; font-weight:bold;
+}
+
+/* ── CONTEÚDO ── */
+.content { padding:20px; }
+
+/* ── SECÇÃO TÍTULO ── */
+.sec-label {
+  font-size:11px; font-weight:bold; color:#555;
+  letter-spacing:1.5px; text-transform:uppercase;
+  margin:24px 0 10px;
+}
+
+/* ── MENU ROW ── */
+.menu-row {
+  background:#0d0d14; border:1px solid #1e1e2e;
+  border-radius:16px; margin-bottom:10px;
+  display:flex; align-items:center; gap:14px;
+  padding:16px; cursor:pointer; transition:background 0.15s;
+}
+.menu-row:active { background:#12122a; }
+.menu-icon {
+  width:40px; height:40px; border-radius:12px;
+  background:linear-gradient(135deg,#8B5CF6,#4F46E5);
+  display:flex; justify-content:center; align-items:center;
+  font-size:17px; flex-shrink:0;
+}
+.menu-icon.verde { background:linear-gradient(135deg,#16a34a,#15803d); }
+.menu-icon.cinza { background:#1e1e2e; }
+.menu-text { flex:1; }
+.menu-text h3 { font-size:15px; font-weight:bold; }
+.menu-text p  { font-size:12px; color:#666; margin-top:2px; }
+.menu-arrow   { color:#555; font-size:14px; }
+
+/* ── BTN SAIR ── */
+.btn-sair {
+  width:100%; padding:15px; margin-top:24px;
+  background:#1a0a0a; border:1px solid rgba(255,77,77,0.3);
+  border-radius:16px; color:#ff6b6b; font-size:16px;
+  font-weight:bold; cursor:pointer; display:flex;
+  align-items:center; justify-content:center; gap:10px;
+  transition:background 0.15s;
+}
+.btn-sair:active { background:#2a0a0a; }
+
+/* ═══════════════════════════════
+   SUBPÁGINA — OVERLAY
+═══════════════════════════════ */
+.subpagina-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:#050505; z-index:500;
+  transform:translateX(100%);
+  transition:transform 0.3s ease;
+  overflow-y:auto;
+}
+.subpagina-overlay.show { transform:translateX(0); }
+
+.sub-header {
+  display:flex; align-items:center; gap:14px;
+  padding:18px 20px; border-bottom:1px solid #1a1a1a;
+  position:sticky; top:0; background:#050505; z-index:10;
+}
+.btn-voltar {
+  background:#111; border:none; color:#fff;
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; cursor:pointer;
+}
+.sub-header h2 { font-size:18px; font-weight:bold; }
+
+/* ── SUBPÁGINA INFO PESSOAL ── */
+.sub-corpo { padding:24px 20px; }
+
+.foto-edit-area {
+  display:flex; flex-direction:column; align-items:center;
+  margin-bottom:30px;
+}
+.foto-grande {
+  width:90px; height:90px; border-radius:50%;
+  background:linear-gradient(135deg,#8B5CF6,#4F46E5);
+  display:flex; justify-content:center; align-items:center;
+  font-size:36px; color:#fff; overflow:hidden;
+  border:3px solid #8B5CF6; margin-bottom:14px;
+}
+.foto-grande img {
+  width:100%; height:100%; object-fit:cover; border-radius:50%;
+}
+.btn-trocar-foto {
+  padding:10px 22px;
+  background:#111; border:1px solid #333;
+  color:#8B5CF6; border-radius:12px; font-size:14px;
+  font-weight:bold; cursor:pointer; display:flex;
+  align-items:center; gap:8px;
+}
+input[type="file"] { display:none; }
+.btn-salvar-foto {
+  margin-top:10px; padding:12px 30px;
+  background:linear-gradient(90deg,#8B5CF6,#4F46E5);
+  border:none; border-radius:12px; color:#fff;
+  font-size:15px; font-weight:bold; cursor:pointer;
+  display:none;
+}
+.btn-salvar-foto.show { display:block; }
+
+/* Campos info */
+.campo {
+  background:#0d0d14; border:1px solid #1e1e2e;
+  border-radius:16px; padding:16px 18px; margin-bottom:12px;
+}
+.campo label { font-size:11px; color:#666; letter-spacing:1px; text-transform:uppercase; }
+.campo p { font-size:16px; font-weight:bold; margin-top:5px; color:#fff; }
+
+/* ── SUBPÁGINA SOBRE NÓS ── */
+.sobre-logo {
+  text-align:center; padding:30px 20px 20px;
+}
+.sobre-logo .ico {
+  width:70px; height:70px; border-radius:22px;
+  background:linear-gradient(135deg,#8B5CF6,#4F46E5);
+  display:flex; justify-content:center; align-items:center;
+  font-size:32px; margin:0 auto 14px;
+}
+.sobre-logo h1 { font-size:22px; font-weight:bold; }
+.sobre-logo .versao { color:#555; font-size:13px; margin-top:4px; }
+
+.sobre-card {
+  background:#0d0d14; border:1px solid #1e1e2e;
+  border-radius:18px; padding:20px; margin:0 20px 16px;
+}
+.sobre-card h3 {
+  font-size:14px; font-weight:bold; color:#8B5CF6;
+  letter-spacing:0.5px; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.sobre-card p { color:#aaa; font-size:14px; line-height:1.75; }
+
+.horario-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 0; border-bottom:1px solid #1a1a1a;
+}
+.horario-row:last-child { border-bottom:none; }
+.horario-row .dia { color:#fff; font-size:14px; }
+.horario-row .hora { color:#00ff73; font-size:14px; font-weight:bold; }
+
+/* ══ ALERTA ══ */
+.alerta-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.85); justify-content:center;
+  align-items:center; z-index:9999; display:none;
+}
+.alerta-overlay.show { display:flex; }
+.alerta-box {
+  background:#121212; border:1px solid #8B5CF6;
+  border-radius:20px; padding:30px 25px;
+  width:90%; max-width:360px; text-align:center;
+}
+.alerta-icon { font-size:42px; margin-bottom:15px; }
+.alerta-box h3 { font-size:20px; margin-bottom:10px; }
+.alerta-box p  { color:#aaa; font-size:14px; margin-bottom:20px; line-height:1.6; }
+.alerta-btns   { display:flex; gap:12px; }
+.alerta-btns button {
+  flex:1; padding:13px; border:none; border-radius:12px;
+  font-weight:bold; font-size:15px; cursor:pointer;
+}
+.btn-sim { background:linear-gradient(90deg,#ff4d4d,#c0392b); color:white; }
+.btn-nao { background:#222; color:#aaa; }
+
+/* ══ NAVBAR ══ */
+.bottom {
+  position:fixed; bottom:0; left:0; width:100%;
+  background:#090909; border-top:1px solid #222;
+  display:flex; justify-content:space-around; padding:15px 0; z-index:998;
+}
+.bottom a {
+  display:flex; flex-direction:column; align-items:center;
+  gap:6px; font-size:12px; color:#aaa; text-decoration:none;
+}
+.bottom i    { font-size:22px; }
+.nav-ativo   { color:#8B5CF6 !important; }
+
+/* ══ FACEBOOK MODAL ══ */
+.fb-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  display:none; justify-content:center; align-items:center;
+  z-index:10000; padding:20px;
+  animation:fbFade 0.25s ease;
+}
+.fb-overlay.show { display:flex; }
+@keyframes fbFade { from{opacity:0} to{opacity:1} }
+@keyframes fbPop  { from{opacity:0; transform:translateY(20px) scale(0.95)} to{opacity:1; transform:translateY(0) scale(1)} }
+
+.fb-card {
+  background:linear-gradient(160deg,#101827 0%,#0a0f1a 100%);
+  border:1px solid rgba(24,119,242,0.35);
+  border-radius:24px; padding:28px 24px 24px;
+  width:100%; max-width:360px; text-align:center;
+  position:relative;
+  box-shadow:0 20px 60px rgba(24,119,242,0.25), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  animation:fbPop 0.35s cubic-bezier(.2,.9,.3,1.2);
+}
+.fb-close {
+  position:absolute; top:12px; right:12px;
+  width:32px; height:32px; border-radius:50%;
+  background:rgba(255,255,255,0.08); color:#fff;
+  border:none; font-size:14px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:background 0.15s;
+}
+.fb-close:hover { background:rgba(255,255,255,0.18); }
+.fb-logo {
+  width:78px; height:78px; margin:6px auto 16px;
+  border-radius:50%;
+  background:#1877F2;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 10px 30px rgba(24,119,242,0.55);
+}
+.fb-logo svg { width:46px; height:46px; }
+.fb-card h3 {
+  font-size:19px; font-weight:bold; color:#fff;
+  margin-bottom:8px; letter-spacing:0.2px;
+}
+.fb-card p {
+  color:#a8b3c7; font-size:14px; line-height:1.55;
+  margin-bottom:20px;
+}
+.fb-card p b { color:#1877F2; }
+.fb-btn {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; padding:14px 18px;
+  background:#1877F2; color:#fff; text-decoration:none;
+  border-radius:14px; font-size:15px; font-weight:bold;
+  border:none; cursor:pointer;
+  box-shadow:0 8px 22px rgba(24,119,242,0.45);
+  transition:transform 0.15s, box-shadow 0.15s;
+}
+.fb-btn:hover { transform:translateY(-1px); box-shadow:0 12px 28px rgba(24,119,242,0.6); }
+.fb-btn:active { transform:translateY(0); }
+.fb-btn svg { width:20px; height:20px; }
+.fb-skip {
+  margin-top:12px; background:none; border:none;
+  color:#666; font-size:12px; cursor:pointer; padding:6px;
+}
+.fb-skip:hover { color:#aaa; }
+
+/* ══ SUBPÁGINA JOGOS ══ */
+.jogos-hero {
+  background: linear-gradient(135deg, #0d0620 0%, #130a2e 50%, #0a0d20 100%);
+  padding: 32px 20px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.jogos-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 300px 200px at 20% 50%, rgba(139,92,246,.18), transparent),
+    radial-gradient(ellipse 300px 200px at 80% 50%, rgba(79,70,229,.15), transparent);
+  pointer-events: none;
+}
+.jogos-hero .badge-novo {
+  display: inline-block;
+  background: linear-gradient(90deg,#8B5CF6,#4F46E5);
+  color: #fff; font-size: 10px; font-weight: 800;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 20px; margin-bottom: 14px;
+}
+.jogos-hero h1 {
+  font-size: 26px; font-weight: 900; line-height: 1.2; margin-bottom: 10px;
+  background: linear-gradient(90deg, #fff 30%, #a78bfa);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.jogos-hero p {
+  color: #8b8baa; font-size: 14px; line-height: 1.6; max-width: 300px; margin: 0 auto;
+}
+.jogos-stats {
+  display: flex; justify-content: center; gap: 24px;
+  margin-top: 20px;
+}
+.jogos-stats .st {
+  text-align: center;
+}
+.jogos-stats .st-val {
+  font-size: 18px; font-weight: 900; color: #a78bfa;
+}
+.jogos-stats .st-lbl {
+  font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px;
+}
+
+.jogos-grid {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.jogo-card {
+  background: #0d0d14;
+  border: 1px solid #1e1e2e;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  transition: transform 0.18s, border-color 0.18s;
+  position: relative;
+}
+.jogo-card:active { transform: scale(0.97); }
+.jogo-card:hover  { border-color: #8B5CF6; }
+.jogo-card-img {
+  width: 100%; aspect-ratio: 1/1;
+  object-fit: cover; display: block;
+  background: #111;
+}
+.jogo-card-img-placeholder {
+  width: 100%; aspect-ratio: 1/1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px;
+}
+.jogo-card-info {
+  padding: 12px 14px;
+}
+.jogo-card-info h3 {
+  font-size: 15px; font-weight: 800; margin-bottom: 3px; color: #fff;
+}
+.jogo-card-info p {
+  font-size: 11px; color: #555; line-height: 1.4;
+}
+.jogo-card .hot-badge {
+  position: absolute; top: 10px; right: 10px;
+  background: linear-gradient(90deg,#ef4444,#dc2626);
+  color: #fff; font-size: 9px; font-weight: 800;
+  padding: 3px 8px; border-radius: 20px; letter-spacing: .5px;
+}
+.jogo-card .new-badge {
+  position: absolute; top: 10px; right: 10px;
+  background: linear-gradient(90deg,#8B5CF6,#4F46E5);
+  color: #fff; font-size: 9px; font-weight: 800;
+  padding: 3px 8px; border-radius: 20px; letter-spacing: .5px;
+}
+
+.jogos-aviso {
+  margin: 0 20px 24px;
+  background: #0d0d14; border: 1px solid #1e1e2e;
+  border-radius: 16px; padding: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.jogos-aviso .av-ico {
+  font-size: 22px; flex-shrink: 0;
+}
+.jogos-aviso p {
+  font-size: 12px; color: #666; line-height: 1.6;
+}
+.jogos-aviso p strong { color: #a78bfa; }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading"><p>A carregar...</p></div>
+
+<!-- ══════════════════════════
+     FACEBOOK POPUP
+══════════════════════════ -->
+<div class="fb-overlay" id="fbOverlay">
+  <div class="fb-card" onclick="event.stopPropagation()">
+    <button class="fb-close" onclick="fecharFb()" aria-label="Fechar">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="fb-logo">
+      <svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.99 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.99 22 12z"/>
+      </svg>
+    </div>
+    <h3>Segue-nos no <b>Facebook</b></h3>
+    <p>Fica a par de todas as <b>ofertas, bónus</b> e novidades exclusivas da nossa comunidade!</p>
+    <a href="https://www.facebook.com/profile.php?id=61590374835901" target="_blank" rel="noopener" class="fb-btn">
+      <svg viewBox="0 0 24 24" fill="#fff"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.99 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.99 22 12z"/></svg>
+      Seguir Página
+    </a>
+    <button class="fb-skip" onclick="fecharFb()">Agora não</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════
+     TOPO FIXO
+══════════════════════════ -->
+<div class="topo-fixo">
+  <div class="foto-wrapper">
+    <div class="foto-avatar" id="topoAvatar">
+      <i class="fa-solid fa-user"></i>
+    </div>
+  </div>
+  <div class="topo-info">
+    <h2 id="topoNome">—</h2>
+    <p id="topoTelefone">—</p>
+    <span class="vip-pill" id="topoVip">VIP Grátis</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     CONTEÚDO PRINCIPAL
+══════════════════════════ -->
+<div class="content">
+
+  <div class="sec-label">Conta</div>
+
+  <div class="menu-row" onclick="abrirInfoPessoal()">
+    <div class="menu-icon"><i class="fa-solid fa-id-card"></i></div>
+    <div class="menu-text">
+      <h3>Informações Pessoais</h3>
+      <p>Nome, telefone e foto de perfil</p>
+    </div>
+    <i class="fa-solid fa-chevron-right menu-arrow"></i>
+  </div>
+
+  <div class="sec-label">Plataforma</div>
+
+  <div class="menu-row" onclick="abrirSobreNos()">
+    <div class="menu-icon verde"><i class="fa-solid fa-circle-info"></i></div>
+    <div class="menu-text">
+      <h3>Sobre Nós</h3>
+      <p>Empresa, missão e atendimento</p>
+    </div>
+    <i class="fa-solid fa-chevron-right menu-arrow"></i>
+  </div>
+
+  <div class="menu-row" onclick="abrirJogos()" style="border-color:rgba(139,92,246,.35);background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(79,70,229,.05));">
+    <div class="menu-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 0 14px rgba(139,92,246,.35);">
+      <i class="fa-solid fa-gamepad"></i>
+    </div>
+    <div class="menu-text">
+      <h3 style="color:#a78bfa;">Jogos</h3>
+      <p>Joga, aposta e ganha prémios</p>
+    </div>
+    <span style="background:linear-gradient(90deg,#8B5CF6,#4F46E5);color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:.5px;">NOVO</span>
+  </div>
+
+  <button class="btn-sair" onclick="pedirLogout()">
+    <i class="fa-solid fa-right-from-bracket"></i>
+    Terminar Sessão
+  </button>
+
+</div><!-- /content -->
+
+<!-- ══════════════════════════
+     SUBPÁGINA — INFO PESSOAL
+══════════════════════════ -->
+<div class="subpagina-overlay" id="subInfoPessoal">
+  <div class="sub-header">
+    <button class="btn-voltar" onclick="fecharSub('subInfoPessoal')">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <h2>Informações Pessoais</h2>
+  </div>
+
+  <div class="sub-corpo">
+
+    <!-- FOTO EDITÁVEL -->
+    <div class="foto-edit-area">
+      <div class="foto-grande" id="subAvatar">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <label class="btn-trocar-foto" for="inputFoto">
+        <i class="fa-solid fa-camera"></i> Trocar foto
+      </label>
+      <input type="file" id="inputFoto" accept="image/*" onchange="previewFoto(event)">
+      <button class="btn-salvar-foto" id="btnSalvarFoto" onclick="salvarFoto()">
+        Guardar foto
+      </button>
+    </div>
+
+    <!-- CAMPOS SOMENTE LEITURA -->
+    <div class="campo">
+      <label>Nome completo</label>
+      <p id="infoNome">—</p>
+    </div>
+    <div class="campo">
+      <label>Número de telefone</label>
+      <p id="infoTelefone">—</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     SUBPÁGINA — SOBRE NÓS
+══════════════════════════ -->
+<div class="subpagina-overlay" id="subSobreNos">
+  <div class="sub-header">
+    <button class="btn-voltar" onclick="fecharSub('subSobreNos')">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <h2>Sobre Nós</h2>
+  </div>
+
+  <!-- LOGO / VERSÃO -->
+  <div class="sobre-logo">
+    <div class="ico">📈</div>
+    <h1>INVEST PRO</h1>
+    <p class="versao">Versão 1.0.0</p>
+  </div>
+
+  <!-- APRESENTAÇÃO -->
+  <div class="sobre-card">
+    <h3><i class="fa-solid fa-building"></i> Apresentação da Empresa</h3>
+    <p>
+      A Invest Pro é uma plataforma de investimento digital angolana, criada para democratizar o acesso a oportunidades financeiras.
+      Combinamos tecnologia moderna com um modelo de rendimento transparente, permitindo que qualquer pessoa — independentemente do nível de experiência — invista com segurança e acompanhe os seus ganhos em tempo real.
+      Desde a nossa criação, temos vindo a crescer de forma sólida, construindo a confiança dos nossos utilizadores através de resultados consistentes e de uma experiência simples e intuitiva.
+    </p>
+  </div>
+
+  <!-- MISSÃO -->
+  <div class="sobre-card">
+    <h3><i class="fa-solid fa-bullseye"></i> A Nossa Missão</h3>
+    <p>
+      Tornar o investimento acessível, seguro e rentável para todos os angolanos.
+      Acreditamos que o crescimento financeiro é um direito de todos, e estamos aqui para tornar esse caminho mais simples e transparente.
+    </p>
+  </div>
+
+  <!-- HORÁRIO -->
+  <div class="sobre-card">
+    <h3><i class="fa-solid fa-clock"></i> Horário de Atendimento</h3>
+    <div class="horario-row">
+      <span class="dia">Segunda a Sexta</span>
+      <span class="hora">08:00 – 18:00</span>
+    </div>
+    <div class="horario-row">
+      <span class="dia">Sábado</span>
+      <span class="hora">08:00 – 14:00</span>
+    </div>
+    <div class="horario-row">
+      <span class="dia">Domingo</span>
+      <span class="hora">09:00 – 13:00</span>
+    </div>
+  </div>
+
+  <div style="height:30px"></div>
+</div>
+
+<!-- ══════════════════════════
+     SUBPÁGINA — JOGOS
+══════════════════════════ -->
+<div class="subpagina-overlay" id="subJogos">
+  <div class="sub-header">
+    <button class="btn-voltar" onclick="fecharSub('subJogos')">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <h2>🎮 Jogos</h2>
+  </div>
+
+  <!-- HERO -->
+  <div class="jogos-hero">
+    <div class="badge-novo">✨ Novidade na plataforma</div>
+    <h1>Joga & Ganha<br>Dinheiro Real</h1>
+    <p>Apostas desportivas e jogos de azar com ganhos reais. Divirta-se e lucre!</p>
+    <div class="jogos-stats">
+      <div class="st">
+        <div class="st-val">2</div>
+        <div class="st-lbl">Jogos</div>
+      </div>
+      <div class="st" style="border-left:1px solid #1e1e2e;border-right:1px solid #1e1e2e;padding:0 24px;">
+        <div class="st-val">24/7</div>
+        <div class="st-lbl">Disponível</div>
+      </div>
+      <div class="st">
+        <div class="st-val">100%</div>
+        <div class="st-lbl">Real</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRID DE JOGOS -->
+  <div class="jogos-grid">
+
+    <!-- FUTEBOL -->
+    <a href="futebol.html" class="jogo-card">
+      <span class="hot-badge">🔥 HOT</span>
+      <div class="jogo-card-img-placeholder" style="background:linear-gradient(135deg,#064e3b,#065f46);">
+        <span style="font-size:52px;">⚽</span>
+        <span style="font-size:11px;color:#6ee7b7;font-weight:700;letter-spacing:.5px;">LIGA ONLINE</span>
+      </div>
+      <div class="jogo-card-info">
+        <h3>Futebol</h3>
+        <p>Apostas em partidas ao vivo com odds reais</p>
+      </div>
+    </a>
+
+    <!-- DADOS -->
+    <a href="dados.html" class="jogo-card">
+      <span class="new-badge">🎲 NOVO</span>
+      <div class="jogo-card-img-placeholder" style="background:linear-gradient(135deg,#3b0764,#4c1d95);">
+        <span style="font-size:52px;">🎲</span>
+        <span style="font-size:11px;color:#c4b5fd;font-weight:700;letter-spacing:.5px;">DADOS BET</span>
+      </div>
+      <div class="jogo-card-info">
+        <h3>Dados</h3>
+        <p>Lança os dados e multiplica os ganhos</p>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- AVISO -->
+  <div class="jogos-aviso">
+    <div class="av-ico">💡</div>
+    <p>
+      As apostas saem do <strong>saldo investimento</strong>.<br>
+      Os ganhos vão direto para o <strong>saldo disponível</strong>.
+    </p>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════
+     ALERTA LOGOUT
+══════════════════════════ -->
+<div class="alerta-overlay" id="alertaOverlay">
+  <div class="alerta-box">
+    <div class="alerta-icon">🚪</div>
+    <h3>Terminar Sessão</h3>
+    <p>Tens a certeza que queres sair da tua conta?</p>
+    <div class="alerta-btns">
+      <button class="btn-nao" onclick="fecharAlerta()">Cancelar</button>
+      <button class="btn-sim" onclick="confirmarLogout()">Sair</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     NAVBAR
+══════════════════════════ -->
+<div class="bottom">
+  <a href="feed.html"><i class="fa-solid fa-house"></i><span>Início</span></a>
+  <a href="mercado.html"><i class="fa-solid fa-chart-line"></i><span>Mercado</span></a>
+  <a href="carteira.html"><i class="fa-solid fa-wallet"></i><span>Carteira</span></a>
+  <a href="equipa.html"><i class="fa-solid fa-users"></i><span>Equipa</span></a>
+  <a href="perfil.html" class="nav-ativo"><i class="fa-solid fa-user"></i><span>Perfil</span></a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ══════════════════════════
+   SUPABASE
+══════════════════════════ */
+const supabaseUrl = "https://tuaclpevpkqvoeggywub.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWNscGV2cGtxdm9lZ2d5d3ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3Njc2NzEsImV4cCI6MjA5NjM0MzY3MX0.ptGzyNLv0gYyq2DgbXOlBFZgK1VbKdaLAdFwLugom2A";
+const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+/* ══════════════════════════
+   ESTADO
+══════════════════════════ */
+let usuario    = null;
+let novaFotoB64 = null; // base64 da nova foto escolhida
+
+/* ══════════════════════════
+   RENDER DE AVATAR
+   Aceita b64 string ou URL
+══════════════════════════ */
+function renderAvatar(elId, src) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (src) {
+    el.innerHTML = `<img src="${src}" alt="foto">`;
+  } else {
+    el.innerHTML = `<i class="fa-solid fa-user"></i>`;
+  }
+}
+
+/* ══════════════════════════
+   PREENCHER UI
+══════════════════════════ */
+function preencherUI(u) {
+  // Topo fixo
+  document.getElementById("topoNome").innerText     = u.nome      || "Utilizador";
+  document.getElementById("topoTelefone").innerText = u.telefone  || "—";
+  document.getElementById("topoVip").innerText      = u.vip       || "VIP Grátis";
+
+  // Subpágina info
+  document.getElementById("infoNome").innerText     = u.nome      || "—";
+  document.getElementById("infoTelefone").innerText = u.telefone  || "—";
+
+  // Fotos
+  const foto = u.foto_perfil || null;
+  renderAvatar("topoAvatar", foto);
+  renderAvatar("subAvatar",  foto);
+}
+
+/* ══════════════════════════
+   CARREGAR UTILIZADOR
+══════════════════════════ */
+async function carregarUsuario() {
+  const cache = localStorage.getItem("usuario");
+  if (!cache || cache === "null" || cache === "undefined") {
+    window.location.replace("login.html"); return;
+  }
+  let userCache;
+  try { userCache = JSON.parse(cache); } catch { window.location.replace("login.html"); return; }
+  if (!userCache || !userCache.id) { window.location.replace("login.html"); return; }
+
+  const { data, error } = await db
+    .from("usuarios").select("*").eq("id", userCache.id).single();
+
+  document.getElementById("loading").style.display = "none";
+
+  if (error || !data) {
+    // usa cache se Supabase falhar
+    usuario = userCache;
+    preencherUI(userCache);
+    return;
+  }
+
+  usuario = data;
+  localStorage.setItem("usuario", JSON.stringify(data));
+  preencherUI(data);
+}
+
+/* ══════════════════════════
+   SUBPÁGINAS
+══════════════════════════ */
+function abrirInfoPessoal() {
+  document.getElementById("subInfoPessoal").classList.add("show");
+}
+function abrirSobreNos() {
+  document.getElementById("subSobreNos").classList.add("show");
+}
+function abrirJogos() {
+  document.getElementById("subJogos").classList.add("show");
+}
+function fecharSub(id) {
+  document.getElementById(id).classList.remove("show");
+  // Limpa preview se fechar sem salvar
+  if (id === "subInfoPessoal") {
+    novaFotoB64 = null;
+    document.getElementById("btnSalvarFoto").classList.remove("show");
+    // Restaura avatar original
+    renderAvatar("subAvatar", usuario?.foto_perfil || null);
+  }
+}
+
+/* ══════════════════════════
+   FOTO — PREVIEW
+══════════════════════════ */
+function previewFoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Limitar tamanho (máx 2 MB)
+  if (file.size > 2 * 1024 * 1024) {
+    alert("A foto não pode ter mais de 2 MB."); return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    novaFotoB64 = e.target.result; // base64
+    renderAvatar("subAvatar", novaFotoB64);
+    document.getElementById("btnSalvarFoto").classList.add("show");
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ══════════════════════════
+   FOTO — SALVAR
+   Guarda base64 no campo foto_perfil da tabela usuarios
+══════════════════════════ */
+async function salvarFoto() {
+  if (!novaFotoB64 || !usuario) return;
+
+  const btn = document.getElementById("btnSalvarFoto");
+  btn.innerText = "A guardar...";
+  btn.disabled  = true;
+
+  const { error } = await db
+    .from("usuarios")
+    .update({ foto_perfil: novaFotoB64 })
+    .eq("id", usuario.id);
+
+  btn.innerText = "Guardar foto";
+  btn.disabled  = false;
+
+  if (error) {
+    alert("Não foi possível guardar a foto. Tenta novamente."); return;
+  }
+
+  // Actualiza cache e estado
+  usuario.foto_perfil = novaFotoB64;
+  localStorage.setItem("usuario", JSON.stringify(usuario));
+
+  // Actualiza topo principal também
+  renderAvatar("topoAvatar", novaFotoB64);
+
+  document.getElementById("btnSalvarFoto").classList.remove("show");
+  novaFotoB64 = null;
+
+  // Reset input para permitir re-escolha
+  document.getElementById("inputFoto").value = "";
+}
+
+/* ══════════════════════════
+   LOGOUT
+══════════════════════════ */
+function pedirLogout() {
+  document.getElementById("alertaOverlay").classList.add("show");
+}
+function fecharAlerta() {
+  document.getElementById("alertaOverlay").classList.remove("show");
+}
+function confirmarLogout() {
+  // Limpa tudo
+  localStorage.removeItem("usuario");
+  localStorage.removeItem("session");
+  sessionStorage.clear();
+  window.location.replace("login.html");
+}
+
+/* ══════════════════════════
+   FACEBOOK POPUP
+══════════════════════════ */
+function abrirFb() {
+  document.getElementById("fbOverlay").classList.add("show");
+}
+function fecharFb() {
+  document.getElementById("fbOverlay").classList.remove("show");
+}
+// Fecha ao clicar fora do card
+document.getElementById("fbOverlay").addEventListener("click", function(e){
+  if (e.target === this) fecharFb();
+});
+// Fecha com tecla ESC
+document.addEventListener("keydown", function(e){
+  if (e.key === "Escape") fecharFb();
+});
+
+/* ══════════════════════════
+   GUARDA DE NAVEGAÇÃO
+   Impede voltar para login/cadastro com o botão "voltar"
+══════════════════════════ */
+(function bloquearVoltarParaLogin(){
+  // Substitui a entrada actual para não permitir voltar à anterior (login)
+  history.replaceState({ app:"perfil" }, "", location.href);
+  // Empurra mais uma entrada como "armadilha"
+  history.pushState({ app:"perfil" }, "", location.href);
+  window.addEventListener("popstate", function(){
+    // Se o utilizador estiver logado, redirecciona para o feed em vez de login
+    const cache = localStorage.getItem("usuario");
+    if (cache && cache !== "null" && cache !== "undefined") {
+      // Reinjecta entrada para manter armadilha
+      history.pushState({ app:"perfil" }, "", location.href);
+      window.location.replace("feed.html");
+    } else {
+      window.location.replace("login.html");
+    }
+  });
+})();
+
+/* ══════════════════════════
+   INICIAR
+══════════════════════════ */
+carregarUsuario();
+
+// Se veio de um jogo, abre a subpágina Jogos automaticamente
+if(new URLSearchParams(location.search).get("jogos") === "1"){
+  setTimeout(()=>{ document.getElementById("subJogos").classList.add("show"); }, 350);
+}
+
+// Mostra o popup do Facebook sempre que abrir a página de perfil
+window.addEventListener("load", function(){
+  setTimeout(abrirFb, 600);
+});
+
+</script>
+</body>
+</html>
