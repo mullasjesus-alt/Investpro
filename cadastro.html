@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+here<!DOCTYPE html>
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
@@ -157,6 +157,16 @@ const supabaseUrl = "https://tuaclpevpkqvoeggywub.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWNscGV2cGtxdm9lZ2d5d3ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3Njc2NzEsImV4cCI6MjA5NjM0MzY3MX0.ptGzyNLv0gYyq2DgbXOlBFZgK1VbKdaLAdFwLugom2A";
 const clientDB = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+// Pré-preenche o código de convite se vier no link (ex: cadastro.html?ref=ABC123)
+window.addEventListener("DOMContentLoaded", function() {
+  var params = new URLSearchParams(window.location.search);
+  var ref = params.get("ref");
+  if (ref) {
+    var campo = document.getElementById("convite");
+    if (campo) campo.value = ref.toUpperCase();
+  }
+});
+
 function showMsg(text, type) {
   var msg = document.getElementById("msg");
   msg.style.display = "block";
@@ -264,16 +274,24 @@ async function cadastrar() {
         codigo_usado:   convite,
         criado_em:      new Date().toISOString()
       }]);
+
+      // Credita bonus de 100kz na comissao do dono do convite e atualiza contagem
+      var donoAtual = await clientDB.from("usuarios").select("saldo_comissao, total_convidados").eq("id", convidadoPor).single();
+      if (donoAtual.data) {
+        var novaComissaoDono = Number(donoAtual.data.saldo_comissao || 0) + 100;
+        var novoTotalConvidados = Number(donoAtual.data.total_convidados || 0) + 1;
+        await clientDB.from("usuarios").update({
+          saldo_comissao:    novaComissaoDono,
+          total_convidados:  novoTotalConvidados
+        }).eq("id", convidadoPor);
+      }
     }
 
     // 6. Guarda no localStorage
     localStorage.setItem("usuario", JSON.stringify(novoUser));
 
-    showMsg("Conta criada com sucesso! A redirecionar...", "success");
-
-    setTimeout(function() {
-      window.location.href = "feed.html";
-    }, 1500);
+    showMsg("Conta criada com sucesso!", "success");
+    document.getElementById("overlayTermos").style.display = "flex";
 
   } catch(err) {
     showMsg("Erro inesperado: " + err.message, "error");
@@ -282,6 +300,27 @@ async function cadastrar() {
 
 }
 
+function continuarParaFeed() {
+  window.location.href = "feed.html";
+}
+
 </script>
+
+<!-- POPUP TERMOS DE USO -->
+<div id="overlayTermos" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:999;justify-content:center;align-items:center;padding:20px;">
+  <div style="background:#1C1C1C;border-radius:18px;max-width:400px;width:100%;padding:30px 24px;text-align:center;">
+    <div style="font-size:46px;margin-bottom:10px;">📜</div>
+    <div style="color:#8B5CF6;font-size:20px;font-weight:bold;margin-bottom:10px;">Termos e Condições</div>
+    <div style="color:#ccc;font-size:14px;line-height:1.6;margin-bottom:24px;text-align:left;">
+      Ao criar uma conta nesta plataforma, você declara que:<br><br>
+      • Aceita os <b>Termos de Uso</b> e a <b>Política de Privacidade</b>;<br>
+      • Está consciente dos <b>riscos associados a investimentos</b>, incluindo possível perda de capital;<br>
+      • Concorda com o <b>tratamento dos seus dados pessoais</b> conforme a legislação aplicável;<br>
+      • Confirma possuir <b>idade legal</b> e capacidade para operações financeiras.
+    </div>
+    <button onclick="continuarParaFeed()" style="width:100%;">Aceitar e Continuar</button>
+  </div>
+</div>
+
 </body>
 </html>
