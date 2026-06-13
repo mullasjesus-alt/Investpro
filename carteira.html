@@ -526,11 +526,13 @@ window.confirmarSaque = async function(){
 
   if(errUp){ alerta("❌","Erro","Não foi possível processar o saque.","ok"); return; }
 
+  // Lê dados bancários: prioridade aos campos do formulário (sempre actualizados),
+  // com fallback para o objecto usuario em memória
   const dadosBancarios = {
-    banco: usuario.banco_nome    || "",
-    titular: usuario.banco_titular || "",
-    iban: usuario.banco_iban      || "",
-    express: usuario.banco_express || ""
+    banco:    document.getElementById("inpBanco").value.trim()   || usuario.banco_nome    || "",
+    titular:  document.getElementById("inpNome").value.trim()    || usuario.banco_titular || "",
+    iban:     document.getElementById("inpIBAN").value.trim()    || usuario.banco_iban    || "",
+    express:  document.getElementById("inpExpress").value.trim() || usuario.banco_express || ""
   };
 
   const { error: insErr } = await db.from("saques").insert({
