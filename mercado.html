@@ -178,6 +178,115 @@ body { background:#050505; color:white; padding:20px; padding-bottom:100px; }
 .inv-row .il { color:#aaa; font-size:13px; }
 .inv-row .iv { font-size:13px; font-weight:bold; }
 .painel-vazio { text-align:center; color:#555; padding:40px 20px; font-size:15px; }
+
+/* ── BOTÃO JOGO ── */
+.btn-jogo-wrapper {
+  margin-bottom:28px;
+}
+.btn-jogo {
+  width:100%; padding:16px; border:none; border-radius:18px;
+  background:linear-gradient(135deg,#7c3aed,#4F46E5);
+  color:#fff; font-size:17px; font-weight:900;
+  cursor:pointer; display:flex; align-items:center;
+  justify-content:center; gap:12px;
+  box-shadow:0 6px 24px rgba(139,92,246,.4);
+  letter-spacing:.3px; transition:transform .15s, box-shadow .15s;
+}
+.btn-jogo:active { transform:scale(0.97); box-shadow:0 2px 10px rgba(139,92,246,.3); }
+.btn-jogo span.badge-novo {
+  background:rgba(255,255,255,.18); font-size:10px; font-weight:800;
+  padding:3px 9px; border-radius:20px; letter-spacing:1px;
+}
+
+/* ── SUBPÁGINA JOGOS (dentro de mercado) ── */
+.subpagina-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:#050505; z-index:500;
+  transform:translateX(100%);
+  transition:transform 0.3s ease;
+  overflow-y:auto;
+}
+.subpagina-overlay.show { transform:translateX(0); }
+.sub-header {
+  display:flex; align-items:center; gap:14px;
+  padding:18px 20px; border-bottom:1px solid #1a1a1a;
+  position:sticky; top:0; background:#050505; z-index:10;
+}
+.btn-voltar {
+  background:#111; border:none; color:#fff;
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; cursor:pointer;
+}
+.sub-header h2 { font-size:18px; font-weight:bold; }
+
+/* HERO JOGOS */
+.jogos-hero {
+  background:linear-gradient(135deg,#0d0620 0%,#130a2e 50%,#0a0d20 100%);
+  padding:32px 20px 24px; text-align:center; position:relative; overflow:hidden;
+}
+.jogos-hero::before {
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 300px 200px at 20% 50%,rgba(139,92,246,.18),transparent),
+    radial-gradient(ellipse 300px 200px at 80% 50%,rgba(79,70,229,.15),transparent);
+  pointer-events:none;
+}
+.jogos-hero .badge-novo {
+  display:inline-block; background:linear-gradient(90deg,#8B5CF6,#4F46E5);
+  color:#fff; font-size:10px; font-weight:800; letter-spacing:1.5px;
+  text-transform:uppercase; padding:4px 12px; border-radius:20px; margin-bottom:14px;
+}
+.jogos-hero h1 {
+  font-size:26px; font-weight:900; line-height:1.2; margin-bottom:10px;
+  background:linear-gradient(90deg,#fff 30%,#a78bfa);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.jogos-hero p { color:#8b8baa; font-size:14px; line-height:1.6; max-width:300px; margin:0 auto; }
+.jogos-stats { display:flex; justify-content:center; gap:24px; margin-top:20px; }
+.jogos-stats .st { text-align:center; }
+.jogos-stats .st-val { font-size:18px; font-weight:900; color:#a78bfa; }
+.jogos-stats .st-lbl { font-size:10px; color:#555; text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
+
+/* GRID JOGOS */
+.jogos-grid {
+  padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:14px;
+}
+.jogo-card {
+  background:#0d0d14; border:1px solid #1e1e2e;
+  border-radius:20px; overflow:hidden; cursor:pointer;
+  text-decoration:none; display:block;
+  transition:transform .18s,border-color .18s; position:relative;
+}
+.jogo-card:active { transform:scale(0.97); }
+.jogo-card:hover  { border-color:#8B5CF6; }
+.jogo-card-img-placeholder {
+  width:100%; aspect-ratio:1/1;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:8px;
+}
+.jogo-card-info { padding:12px 14px; }
+.jogo-card-info h3 { font-size:15px; font-weight:800; margin-bottom:3px; color:#fff; }
+.jogo-card-info p  { font-size:11px; color:#555; line-height:1.4; }
+.jogo-card .hot-badge {
+  position:absolute; top:10px; right:10px;
+  background:linear-gradient(90deg,#ef4444,#dc2626);
+  color:#fff; font-size:9px; font-weight:800;
+  padding:3px 8px; border-radius:20px; letter-spacing:.5px;
+}
+.jogo-card .new-badge {
+  position:absolute; top:10px; right:10px;
+  background:linear-gradient(90deg,#8B5CF6,#4F46E5);
+  color:#fff; font-size:9px; font-weight:800;
+  padding:3px 8px; border-radius:20px; letter-spacing:.5px;
+}
+.jogos-aviso {
+  margin:0 20px 24px; background:#0d0d14; border:1px solid #1e1e2e;
+  border-radius:16px; padding:16px; display:flex; align-items:center; gap:12px;
+}
+.jogos-aviso .av-ico { font-size:22px; flex-shrink:0; }
+.jogos-aviso p { font-size:12px; color:#666; line-height:1.6; }
+.jogos-aviso p strong { color:#a78bfa; }
 </style>
 </head>
 <body>
@@ -199,6 +308,15 @@ body { background:#050505; color:white; padding:20px; padding-bottom:100px; }
 
 <!-- GRÁFICO -->
 <div id="grafico"></div>
+
+<!-- BOTÃO JOGO -->
+<div class="btn-jogo-wrapper">
+  <button class="btn-jogo" onclick="abrirJogos()">
+    <i class="fa-solid fa-gamepad"></i>
+    Jogos & Apostas
+    <span class="badge-novo">NOVO</span>
+  </button>
+</div>
 
 <!-- ÁREA INVESTIMENTO -->
 <div class="section-title">Área de Investimento</div>
@@ -234,6 +352,71 @@ body { background:#050505; color:white; padding:20px; padding-bottom:100px; }
   <div class="painel-corpo" id="painelCorpo"></div>
 </div>
 
+<!-- ══════════════════════════
+     SUBPÁGINA — JOGOS
+══════════════════════════ -->
+<div class="subpagina-overlay" id="subJogos">
+  <div class="sub-header">
+    <button class="btn-voltar" onclick="fecharJogos()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <h2>🎮 Jogos</h2>
+  </div>
+
+  <div class="jogos-hero">
+    <div class="badge-novo">✨ Novidade na plataforma</div>
+    <h1>Joga & Ganha<br>Dinheiro Real</h1>
+    <p>Apostas desportivas e jogos de azar com ganhos reais. Divirta-se e lucre!</p>
+    <div class="jogos-stats">
+      <div class="st">
+        <div class="st-val">2</div>
+        <div class="st-lbl">Jogos</div>
+      </div>
+      <div class="st" style="border-left:1px solid #1e1e2e;border-right:1px solid #1e1e2e;padding:0 24px;">
+        <div class="st-val">24/7</div>
+        <div class="st-lbl">Disponível</div>
+      </div>
+      <div class="st">
+        <div class="st-val">100%</div>
+        <div class="st-lbl">Real</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="jogos-grid">
+    <a href="futebol.html" class="jogo-card">
+      <span class="hot-badge">🔥 HOT</span>
+      <div class="jogo-card-img-placeholder" style="background:linear-gradient(135deg,#064e3b,#065f46);">
+        <span style="font-size:52px;">⚽</span>
+        <span style="font-size:11px;color:#6ee7b7;font-weight:700;letter-spacing:.5px;">LIGA ONLINE</span>
+      </div>
+      <div class="jogo-card-info">
+        <h3>Futebol</h3>
+        <p>Apostas em partidas ao vivo com odds reais</p>
+      </div>
+    </a>
+    <a href="dados.html" class="jogo-card">
+      <span class="new-badge">🎲 NOVO</span>
+      <div class="jogo-card-img-placeholder" style="background:linear-gradient(135deg,#3b0764,#4c1d95);">
+        <span style="font-size:52px;">🎲</span>
+        <span style="font-size:11px;color:#c4b5fd;font-weight:700;letter-spacing:.5px;">DADOS BET</span>
+      </div>
+      <div class="jogo-card-info">
+        <h3>Dados</h3>
+        <p>Lança os dados e multiplica os ganhos</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="jogos-aviso">
+    <div class="av-ico">💡</div>
+    <p>
+      As apostas saem do <strong>saldo investimento</strong>.<br>
+      Os ganhos vão direto para o <strong>saldo disponível</strong>.
+    </p>
+  </div>
+</div>
+
 <script>
 window.addEventListener("load", function () {
 
@@ -246,17 +429,24 @@ const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 /* ==========================
    DADOS VIPs
+   lucroPct     = percentagem mostrada ao utilizador (front-end)
+   casaPct      = percentagem da casa (invisível ao utilizador)
+   DIAS_SISTEMA = 7 dias reais (invisível — ganhos param ao fim de 7 dias)
+   DIAS_DISPLAY = 95 dias (prazo e ganho total visível ao utilizador)
 ========================== */
+const DIAS_SISTEMA = 7;  // invisível — ganhos param ao fim de 7 dias
+const DIAS_DISPLAY = 95; // visível ao utilizador como prazo e base do ganho total
+
 const VIPS = [
-  { nome:"VIP Grátis", desbloqueio:0,      lucroPct:0.15, casaPct:0.20, dias:95,
+  { nome:"VIP Grátis", desbloqueio:0,      lucroPct:0.15, casaPct:0.20,
     niveis:[{valor:500},{valor:1000},{valor:3000},{valor:5000},{valor:7000}] },
-  { nome:"VIP 1",      desbloqueio:10000,  lucroPct:0.25, casaPct:0.25, dias:95,
+  { nome:"VIP 1",      desbloqueio:10000,  lucroPct:0.25, casaPct:0.25,
     niveis:[{valor:10000},{valor:22000},{valor:45000},{valor:70000},{valor:90000}] },
-  { nome:"VIP 2",      desbloqueio:100000, lucroPct:0.30, casaPct:0.35, dias:95,
+  { nome:"VIP 2",      desbloqueio:100000, lucroPct:0.30, casaPct:0.35,
     niveis:[{valor:100000},{valor:125000},{valor:150000},{valor:180000},{valor:200000}] },
-  { nome:"VIP 3",      desbloqueio:250000, lucroPct:0.35, casaPct:0.40, dias:95,
+  { nome:"VIP 3",      desbloqueio:250000, lucroPct:0.35, casaPct:0.40,
     niveis:[{valor:230000},{valor:340000},{valor:400000},{valor:500000},{valor:1000000}] },
-  { nome:"VIP 4",      desbloqueio:350000, lucroPct:0.45, casaPct:0.42, dias:95,
+  { nome:"VIP 4",      desbloqueio:350000, lucroPct:0.45, casaPct:0.42,
     niveis:[{valor:1000000}] }
 ];
 
@@ -287,10 +477,17 @@ function fmtData(iso) {
 }
 
 /* ==========================
-   CALCULAR LUCRO LÍQUIDO
-   Utilizador só vê este valor
+   CALCULAR LUCRO BRUTO (mostrado ao utilizador no front-end)
 ========================== */
-function lucroLiq(valor, lucroPct, casaPct) {
+function lucroBruto(valor, lucroPct) {
+  return Math.floor(valor * lucroPct);
+}
+
+/* ==========================
+   CALCULAR LUCRO LÍQUIDO (creditado na conta - invisível ao utilizador)
+   Bruto - percentagem da casa
+========================== */
+function lucroLiquido(valor, lucroPct, casaPct) {
   const bruto = valor * lucroPct;
   return Math.floor(bruto - bruto * casaPct);
 }
@@ -330,6 +527,16 @@ window.confirmarAlerta = function() {
 };
 
 /* ==========================
+   JOGOS
+========================== */
+window.abrirJogos = function() {
+  document.getElementById("subJogos").classList.add("show");
+};
+window.fecharJogos = function() {
+  document.getElementById("subJogos").classList.remove("show");
+};
+
+/* ==========================
    CARREGAR UTILIZADOR DO SUPABASE
 ========================== */
 async function carregarUsuario() {
@@ -345,7 +552,6 @@ async function carregarUsuario() {
     window.location.replace("login.html"); return;
   }
 
-  // Busca dados frescos pelo ID
   const { data, error } = await db
     .from("usuarios").select("*").eq("id", userCache.id).single();
 
@@ -365,6 +571,77 @@ async function carregarUsuario() {
 
   renderTabs();
   renderVip(0);
+
+  // Processar ganhos diários pendentes automaticamente
+  processarGanhosDiarios();
+}
+
+/* ==========================
+   PROCESSAR GANHOS DIÁRIOS
+   Corre em background ao carregar a página.
+   Para cada investimento ativo:
+     - Verifica se passaram 24h desde o último pagamento
+     - Se sim, credita o lucro LÍQUIDO (sem % da casa) no saldo disponível
+     - Decrementa dias_restantes
+     - Se dias_restantes chegar a 0, marca como finalizado (para de ganhar)
+========================== */
+async function processarGanhosDiarios() {
+  if (!usuario) return;
+
+  const { data: investimentos, error } = await db
+    .from("investimentos")
+    .select("*")
+    .eq("usuario_id", usuario.id)
+    .eq("status", "ativo");
+
+  if (error || !investimentos || investimentos.length === 0) return;
+
+  const agora = new Date();
+
+  for (const inv of investimentos) {
+    const ultimoPagamento = new Date(inv.ultimo_pagamento);
+    const diffMs = agora - ultimoPagamento;
+    const diffHoras = diffMs / (1000 * 60 * 60);
+
+    // Só processa se passaram pelo menos 24 horas
+    if (diffHoras < 24) continue;
+
+    // Quantos pagamentos pendentes (máx um por ciclo)
+    const diasPendentes = Math.min(Math.floor(diffHoras / 24), inv.dias_restantes);
+    if (diasPendentes <= 0) continue;
+
+    // O lucro diário guardado já é o líquido (sem % da casa)
+    const valorACreditar = inv.lucro_diario * diasPendentes;
+    const novosDiasRestantes = inv.dias_restantes - diasPendentes;
+    const novoStatus = novosDiasRestantes <= 0 ? "finalizado" : "ativo";
+    const novoUltimoPagamento = new Date(ultimoPagamento.getTime() + diasPendentes * 24 * 60 * 60 * 1000).toISOString();
+
+    // Busca saldo disponível atualizado
+    const { data: userAtual } = await db
+      .from("usuarios").select("saldo_disponivel").eq("id", usuario.id).single();
+
+    const saldoAtual = Number(userAtual?.saldo_disponivel || 0);
+
+    // Credita no saldo disponível
+    await db.from("usuarios").update({
+      saldo_disponivel: saldoAtual + valorACreditar
+    }).eq("id", usuario.id);
+
+    // Atualiza investimento
+    await db.from("investimentos").update({
+      dias_restantes:   novosDiasRestantes,
+      status:           novoStatus,
+      ultimo_pagamento: novoUltimoPagamento
+    }).eq("id", inv.id);
+  }
+
+  // Atualiza cache do utilizador
+  const { data: userFinal } = await db
+    .from("usuarios").select("*").eq("id", usuario.id).single();
+  if (userFinal) {
+    usuario = userFinal;
+    localStorage.setItem("usuario", JSON.stringify(userFinal));
+  }
 }
 
 /* ==========================
@@ -393,13 +670,14 @@ function selecionarVip(idx) {
 
 /* ==========================
    RENDER VIP
+   Front-end mostra GANHO BRUTO (sem descontar % da casa)
+   Sistema interno usa GANHO LÍQUIDO para creditar
 ========================== */
 function renderVip(idx) {
   const vip      = VIPS[idx];
   const bloqueado = !vipsDesbloqueados[idx];
   let html = "";
 
-  // Banner bloqueado
   if (bloqueado) {
     html += `
       <div class="banner-bloqueado">
@@ -411,10 +689,13 @@ function renderVip(idx) {
       </div>`;
   }
 
-  // Níveis
   vip.niveis.forEach((nivel, ni) => {
-    const liq   = lucroLiq(nivel.valor, vip.lucroPct, vip.casaPct);
-    const total = liq * vip.dias;
+    // Valor mostrado ao utilizador = ganho BRUTO (sem % da casa)
+    const ganhoDisplay = lucroBruto(nivel.valor, vip.lucroPct);
+    // Valor real creditado = ganho LÍQUIDO (com desconto da casa - invisível)
+    const ganhoReal    = lucroLiquido(nivel.valor, vip.lucroPct, vip.casaPct);
+    // Total mostrado ao utilizador = bruto × 95 dias (DIAS_DISPLAY — visível)
+    const totalDisplay = ganhoDisplay * DIAS_DISPLAY;
     const img   = IMGS[ni % IMGS.length];
 
     html += `
@@ -426,20 +707,20 @@ function renderVip(idx) {
           <div class="nivel-nome">${vip.nome} — Nível ${ni+1}</div>
           <div class="nivel-row">
             <span class="label">Ganho Diário</span>
-            <span class="valor">${fmtKz(liq)}</span>
+            <span class="valor">${fmtKz(ganhoDisplay)}</span>
           </div>
           <div class="nivel-row">
             <span class="label">Ganho Total</span>
-            <span class="valor">${fmtKz(total)}</span>
+            <span class="valor">${fmtKz(totalDisplay)}</span>
           </div>
           <div class="nivel-row">
             <span class="label">Prazo</span>
-            <span class="valor prazo">${vip.dias} dias</span>
+            <span class="valor prazo">${DIAS_DISPLAY} dias</span>
           </div>
           <button
             class="btn-investir"
             ${bloqueado ? "disabled" : ""}
-            onclick="pedirInvestimento(${idx},${ni},${nivel.valor},${liq})">
+            onclick="pedirInvestimento(${idx},${ni},${nivel.valor},${ganhoDisplay},${ganhoReal})">
             INVESTIR ${fmtKz(nivel.valor)}
           </button>
         </div>
@@ -451,23 +732,27 @@ function renderVip(idx) {
 
 /* ==========================
    PEDIR INVESTIMENTO
+   ganhoDisplay = valor mostrado ao utilizador
+   ganhoReal    = valor que vai ser creditado (com desconto da casa)
 ========================== */
-window.pedirInvestimento = function(vipIdx, nivelIdx, valor, liq) {
+window.pedirInvestimento = function(vipIdx, nivelIdx, valor, ganhoDisplay, ganhoReal) {
   if (!usuario) { window.location.replace("login.html"); return; }
 
   const vip = VIPS[vipIdx];
   alerta("💰","Confirmar Investimento",
-    `Investir ${fmtKz(valor)} no ${vip.nome} — Nível ${nivelIdx+1}?\n\nGanho diário: ${fmtKz(liq)}\nGanho total: ${fmtKz(liq * vip.dias)}\n\nO valor sai do saldo investimento.`,
-    "confirm", () => fazerInvestimento(vipIdx, nivelIdx, valor, liq));
+    `Investir ${fmtKz(valor)} no ${vip.nome} — Nível ${nivelIdx+1}?\n\nGanho diário: ${fmtKz(ganhoDisplay)}\nGanho total (${DIAS_DISPLAY} dias): ${fmtKz(ganhoDisplay * DIAS_DISPLAY)}\n\nO valor sai do saldo investimento.`,
+    "confirm", () => fazerInvestimento(vipIdx, nivelIdx, valor, ganhoReal));
 };
 
 /* ==========================
    FAZER INVESTIMENTO
+   Guarda lucro_diario = ganhoReal (líquido, já com desconto da casa)
+   Dias internos = DIAS_SISTEMA (7 dias) - invisível ao utilizador
+   O utilizador vê 95 dias no ecrã mas os ganhos param ao 7º dia
 ========================== */
-async function fazerInvestimento(vipIdx, nivelIdx, valor, liq) {
+async function fazerInvestimento(vipIdx, nivelIdx, valor, ganhoReal) {
   alerta("⏳","A Investir...","Por favor aguarde enquanto processamos.","loading");
 
-  // Busca saldo fresco
   const { data: user, error } = await db
     .from("usuarios").select("*").eq("id", usuario.id).single();
 
@@ -477,7 +762,6 @@ async function fazerInvestimento(vipIdx, nivelIdx, valor, liq) {
 
   const saldoAtual = Number(user.saldo_investimento || 0);
 
-  // Verifica saldo
   if (saldoAtual < valor) {
     alerta("❌","Saldo Insuficiente",
       `O seu saldo investimento é de ${fmtKz(saldoAtual)}.\n\nPrecisa de ${fmtKz(valor)} para investir neste nível.`,
@@ -487,7 +771,6 @@ async function fazerInvestimento(vipIdx, nivelIdx, valor, liq) {
   const vip = VIPS[vipIdx];
   const novoSaldo = saldoAtual - valor;
 
-  // Atualiza saldo
   const { error: errUp } = await db.from("usuarios").update({
     saldo_investimento: novoSaldo,
     total_investido: Number(user.total_investido || 0) + valor
@@ -497,26 +780,27 @@ async function fazerInvestimento(vipIdx, nivelIdx, valor, liq) {
     alerta("❌","Erro","Não foi possível processar o investimento.","ok"); return;
   }
 
-  // Cria registo investimento
+  // Guarda lucro_diario = ganhoReal (líquido)
+  // dias_total e dias_restantes = DIAS_SISTEMA (5 dias)
   await db.from("investimentos").insert({
     usuario_id:       user.id,
     vip:              vip.nome,
     nivel:            "Nível " + (nivelIdx+1),
     valor_investido:  valor,
-    lucro_diario:     liq,
-    dias_total:       vip.dias,
-    dias_restantes:   vip.dias,
+    lucro_diario:     ganhoReal,   // valor LÍQUIDO que será creditado
+    dias_total:       DIAS_SISTEMA,
+    dias_restantes:   DIAS_SISTEMA,
     status:           "ativo",
     criado_em:        new Date().toISOString(),
     ultimo_pagamento: new Date().toISOString()
   });
 
-  // Atualiza cache
   usuario.saldo_investimento = novoSaldo;
   localStorage.setItem("usuario", JSON.stringify(usuario));
 
+  const ganhoDisplay = lucroBruto(valor, vip.lucroPct);
   alerta("✅","Investimento Realizado!",
-    `Investiu ${fmtKz(valor)} no ${vip.nome} — Nível ${nivelIdx+1}.\n\nGanho diário: ${fmtKz(liq)}\nO lucro será creditado no saldo disponível a cada 24h.`,
+    `Investiu ${fmtKz(valor)} no ${vip.nome} — Nível ${nivelIdx+1}.\n\nGanho diário: ${fmtKz(ganhoDisplay)}\nO lucro será creditado no saldo disponível a cada 24h.`,
     "ok");
 }
 
@@ -526,7 +810,6 @@ async function fazerInvestimento(vipIdx, nivelIdx, valor, liq) {
 window.pedirDesbloqueio = function(vipIdx) {
   if (!usuario) { window.location.replace("login.html"); return; }
 
-  // Verifica ordem obrigatória
   if (vipIdx > 0 && !vipsDesbloqueados[vipIdx-1]) {
     alerta("🔒","Ordem Obrigatória",
       `Tens de desbloquear o ${VIPS[vipIdx-1].nome} primeiro.`,"ok"); return;
@@ -554,7 +837,6 @@ async function fazerDesbloqueio(vipIdx) {
   const vip = VIPS[vipIdx];
   const saldoAtual = Number(user.saldo_investimento || 0);
 
-  // Verifica saldo
   if (saldoAtual < vip.desbloqueio) {
     alerta("❌","Saldo Insuficiente",
       `O seu saldo investimento é de ${fmtKz(saldoAtual)}.\n\nPrecisa de ${fmtKz(vip.desbloqueio)} para desbloquear o ${vip.nome}.`,
@@ -563,7 +845,6 @@ async function fazerDesbloqueio(vipIdx) {
 
   const novoSaldo = saldoAtual - vip.desbloqueio;
 
-  // Atualiza saldo e VIP do utilizador
   const { error: errUp } = await db.from("usuarios").update({
     saldo_investimento: novoSaldo,
     vip: vip.nome
@@ -573,15 +854,12 @@ async function fazerDesbloqueio(vipIdx) {
     alerta("❌","Erro","Não foi possível processar o desbloqueio.","ok"); return;
   }
 
-  // Atualiza cache
   usuario.saldo_investimento = novoSaldo;
   usuario.vip = vip.nome;
   localStorage.setItem("usuario", JSON.stringify(usuario));
 
-  // Marca VIP como desbloqueado
   vipsDesbloqueados[vipIdx] = true;
 
-  // Atualiza UI
   renderTabs();
   selecionarVip(vipIdx);
 
@@ -611,6 +889,10 @@ window.abrirHistorico = async function() {
 
   let html = "";
   data.forEach(inv => {
+    // Mostra o ganho diário conforme guardado (líquido)
+    const diasLabel = inv.status === 'ativo'
+      ? `A render lucro (${inv.dias_restantes} ciclos restantes)`
+      : "Concluído";
     html += `
       <div class="inv-card">
         <div class="inv-topo">
@@ -621,7 +903,8 @@ window.abrirHistorico = async function() {
         </div>
         <div class="inv-row"><span class="il">Valor Investido</span><span class="iv">${fmtKz(inv.valor_investido)}</span></div>
         <div class="inv-row"><span class="il">Ganho Diário</span><span class="iv" style="color:#00ff73">${fmtKz(inv.lucro_diario)}</span></div>
-        <div class="inv-row"><span class="il">Dias Restantes</span><span class="iv" style="color:#a78bfa">${inv.dias_restantes} dias</span></div>
+        <div class="inv-row"><span class="il">Prazo</span><span class="iv" style="color:#a78bfa">${DIAS_DISPLAY} dias</span></div>
+        <div class="inv-row"><span class="il">Estado</span><span class="iv" style="color:#fbbf24;font-size:12px">${diasLabel}</span></div>
         <div class="inv-row"><span class="il">Data</span><span class="iv">${fmtData(inv.criado_em)}</span></div>
       </div>`;
   });
@@ -634,7 +917,7 @@ window.fecharHistorico = function() {
 };
 
 /* ==========================
-   GRÁFICO (IGUAL AO ORIGINAL)
+   GRÁFICO
 ========================== */
 const largura = Math.min(450, window.innerWidth - 40);
 const chart = LightweightCharts.createChart(document.getElementById("grafico"), {
@@ -673,3 +956,4 @@ carregarUsuario();
 </script>
 </body>
 </html>
+
