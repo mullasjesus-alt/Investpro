@@ -201,7 +201,7 @@ html,body{ height:100%; background:var(--bg); color:var(--text);
     <div class="bot-av"><i class="fa-solid fa-headset" style="color:#fff;font-size:18px"></i><span class="dot"></span></div>
     <div class="h-info">
       <div class="h-name">Suporte Invest Pro</div>
-      <div class="h-status"><i class="fa-solid fa-circle" style="font-size:7px"></i> Admin online</div>
+      <div class="h-status" id="hStatus"><i class="fa-solid fa-circle" style="font-size:7px"></i> Admin online</div>
     </div>
   </div>
 
@@ -246,7 +246,7 @@ const SUPABASE_URL = "https://tuaclpevpkqvoeggywub.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWNscGV2cGtxdm9lZ2d5d3ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3Njc2NzEsImV4cCI6MjA5NjM0MzY3MX0.ptGzyNLv0gYyq2DgbXOlBFZgK1VbKdaLAdFwLugom2A";
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const TABLE  = "suporte";        // ajuste se o nome real for outro
+const TABLE  = "suporte_msgs";   // mesma tabela usada pelo ADM
 const BUCKET = "fotos";
 const EXPIRY_HOURS = 24;
 
@@ -329,7 +329,7 @@ function renderDivider(label){
 async function loadHistory(){
   const since = new Date(Date.now() - EXPIRY_HOURS*3600*1000).toISOString();
 
-  // limpar mensagens do próprio utilizador com mais de 48h
+  // limpar mensagens do próprio utilizador com mais de 24h
   sb.from(TABLE).delete().eq('usuario_id', USER_ID).lt('criado_em', since).then(()=>{});
 
   const { data, error } = await sb
@@ -349,27 +349,19 @@ async function loadHistory(){
   }
 
   data.forEach(row => {
-    // mensagem do utilizador
-    if (row.mensagem || row.file_url){
-      renderMsg({
-        id: 'u_'+row.id,
-        role:'user',
-        text: row.mensagem,
-        file_url: row.file_url,
-        created_at: row.criado_em,
-        read: !!row.respondido_em
-      });
-    }
-    // resposta do admin
-    if (row.resposta){
-      renderMsg({
-        id: 'a_'+row.id,
-        role:'bot',
-        text: row.resposta,
-        created_at: row.respondido_em || row.criado_em
-      });
-    }
+    const isAdm = row.remetente === 'admin';
+    renderMsg({
+      id: (isAdm?'a_':'u_')+row.id,
+      role: isAdm ? 'bot' : 'user',
+      text: row.mensagem,
+      file_url: row.file_url,
+      created_at: row.criado_em,
+      read: !!row.lido
+    });
   });
+
+  // marcar mensagens do admin como lidas
+  sb.from(TABLE).update({lido:true}).eq('usuario_id', USER_ID).eq('remetente','admin').eq('lido',false).then(()=>{});
 }
 
 /* ════════════════════════════════════
@@ -385,13 +377,15 @@ function subscribe(){
           document.querySelectorAll(`[data-id="u_${row.id}"], [data-id="a_${row.id}"]`).forEach(el=>el.remove());
           return;
         }
-        if (payload.eventType === 'UPDATE' && row.resposta){
+        if (payload.eventType === 'INSERT' && row.remetente === 'admin'){
           if (!seenIds.has('a_'+row.id)){
-            renderMsg({ id:'a_'+row.id, role:'bot', text:row.resposta, created_at:row.respondido_em || Date.now() });
-            // marcar tick verde
-            const u = document.querySelector(`[data-id="u_${row.id}"] .check`);
-            if (u) u.classList.add('read');
+            renderMsg({ id:'a_'+row.id, role:'bot', text:row.mensagem, file_url:row.file_url, created_at:row.criado_em || Date.now() });
+            sb.from(TABLE).update({lido:true}).eq('id', row.id).then(()=>{});
           }
+        }
+        if (payload.eventType === 'UPDATE' && row.remetente === 'admin' && row.lido){
+          const u = document.querySelector(`[data-id="a_${row.id}"] .check`);
+          if (u) u.classList.add('read');
         }
       })
     .subscribe();
@@ -466,9 +460,10 @@ async function sendMsg(){
   // insert na BD
   const { data, error } = await sb.from(TABLE).insert({
     usuario_id: USER_ID,
-    mensagem: text || null,
+    remetente: 'user',
+    mensagem: text || '',
     file_url: file_url,
-    status: 'aberto',
+    lido: false,
     criado_em: new Date().toISOString()
   }).select().single();
 
@@ -484,12 +479,28 @@ async function sendMsg(){
 }
 
 /* ════════════════════════════════════
+   STATUS DE HORÁRIO (8h-20h)
+════════════════════════════════════ */
+function updateStatus(){
+  const h = new Date().getHours();
+  const el = $('hStatus');
+  if (h >= 8 && h < 20){
+    el.innerHTML = '<i class="fa-solid fa-circle" style="font-size:7px;color:#22c55e"></i> Suporte online (08h-20h)';
+  } else {
+    el.innerHTML = '<i class="fa-solid fa-circle" style="font-size:7px;color:#888"></i> Fora do horário (08h-20h) — deixe a sua mensagem';
+  }
+}
+
+/* ════════════════════════════════════
    INIT
 ════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', async () => {
+  updateStatus();
+  setInterval(updateStatus, 60000);
   await loadHistory();
   subscribe();
 });
 </script>
 </body>
 </html>
+
