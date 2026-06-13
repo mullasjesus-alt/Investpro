@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Loteria 1/90 – Invest Pro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root{
+      --bg:#050505; --s1:#0d0d0d; --s2:#121212; --s3:#1a1a1a; --s4:#222;
+      --gold:#FFD700; --gold2:#FFA500; --gold3:#ffec80;
+      --green:#00e676; --red:#ff4444; --blue:#38bdf8;
+      --border:rgba(255,215,0,.14); --border2:rgba(255,215,0,.28);
+      --text:#f0f0f0; --muted:#555; --muted2:#888;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+
+    /* ── LOADING ── */
+    .loading-overlay{
+      position:fixed;inset:0;background:#000;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9999;
+    }
+    .loading-overlay.hide{display:none;}
+    .sp{width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,215,0,.2);border-top-color:var(--gold);animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-overlay p{color:var(--muted2);font-size:14px;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;}
+
+    /* ── HEADER ── */
+    header{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 14px;
+      background:linear-gradient(135deg,#100800,#080600);
+      border-bottom:1px solid var(--border2);
+      position:sticky;top:0;z-index:30;
+    }
+    .back{
+      text-decoration:none;color:var(--text);
+      background:rgba(255,215,0,.07);border:1px solid var(--border2);
+      padding:7px 12px;border-radius:10px;
+      display:inline-flex;align-items:center;gap:7px;
+      font-size:13px;font-weight:600;transition:all .18s;
+    }
+    .back:hover{background:rgba(255,215,0,.15);transform:translateX(-2px);}
+    .brand{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;letter-spacing:1px;color:var(--gold);}
+    .brand-sub{font-size:10px;color:var(--muted2);margin-top:1px;}
+    .header-saldos{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+    .hs-item{
+      background:rgba(255,215,0,.06);border:1px solid var(--border);
+      border-radius:10px;padding:5px 11px;text-align:center;min-width:90px;
+    }
+    .hs-lbl{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px;}
+    .hs-val{font-size:12px;font-weight:700;}
+    .hs-val.disp{color:var(--green);}
+    .hs-val.inv{color:var(--gold);}
+
+    /* ── PHASE BAR ── */
+    .phase-bar{
+      background:var(--s1);border-bottom:1px solid var(--border);
+      padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+      position:sticky;top:54px;z-index:20;
+    }
+    .phase-info{display:flex;align-items:center;gap:10px;}
+    .phase-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .phase-dot.betting{background:var(--green);animation:pdot 1.2s ease infinite;}
+    .phase-dot.drawing{background:var(--gold);animation:pdot .6s ease infinite;}
+    .phase-dot.results{background:var(--blue);}
+    @keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
+    .phase-label{font-size:13px;font-weight:700;}
+    .phase-label.betting{color:var(--green);}
+    .phase-label.drawing{color:var(--gold);}
+    .phase-label.results{color:var(--blue);}
+    .round-num{font-size:11px;color:var(--muted2);}
+    .timer-display{
+      font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;
+      color:var(--red);letter-spacing:1px;
+      min-width:52px;text-align:right;
+    }
+    .timer-display.safe{color:var(--green);}
+    .timer-display.warn{color:var(--gold);}
+
+    /* ── MAIN ── */
+    main{max-width:600px;margin:0 auto;padding:12px 10px 30px;display:flex;flex-direction:column;gap:10px;}
+
+    /* ── PANEL ── */
+    .panel{
+      background:var(--s2);border:1px solid var(--border);
+      border-radius:16px;overflow:hidden;
+    }
+    .ptitle{
+      padding:10px 14px;background:var(--s3);
+      border-bottom:1px solid var(--border);
+      display:flex;justify-content:space-between;align-items:center;
+      font-size:13px;font-weight:700;color:var(--gold);
+    }
+    .ptitle .sub{font-size:11px;color:var(--muted2);font-weight:500;}
+
+    /* ── DRAW STAGE ── */
+    .draw-stage{
+      padding:20px 14px;
+      display:flex;flex-direction:column;align-items:center;gap:14px;
+      min-height:120px;
+    }
+    .drawn-balls{
+      display:flex;gap:10px;flex-wrap:wrap;justify-content:center;min-height:56px;align-items:center;
+    }
+    .ball{
+      width:52px;height:52px;border-radius:50%;
+      display:inline-flex;align-items:center;justify-content:center;
+      font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;
+      color:#000;flex-shrink:0;
+      box-shadow:0 4px 14px rgba(0,0,0,.5);
+      position:relative;overflow:hidden;
+    }
+    .ball::before{
+      content:'';position:absolute;top:5px;left:12px;
+      width:14px;height:8px;border-radius:50%;
+      background:rgba(255,255,255,.35);
+    }
+    .ball.c1{background:linear-gradient(135deg,#FFD700,#FF8C00);}
+    .ball.c2{background:linear-gradient(135deg,#ff4444,#cc0000);}
+    .ball.c3{background:linear-gradient(135deg,#4488ff,#0044cc);}
+    .ball.c4{background:linear-gradient(135deg,#00cc44,#007722);}
+    .ball.c5{background:linear-gradient(135deg,#cc44ff,#7700cc);}
+    .ball.hit{
+      box-shadow:0 0 0 3px var(--green),0 4px 20px rgba(0,230,118,.5)!important;
+      animation:ballHit .4s ease;
+    }
+    @keyframes ballHit{0%{transform:scale(1.3)}100%{transform:scale(1)}}
+    .ball.pop{animation:ballPop .5s cubic-bezier(.34,1.56,.64,1);}
+    @keyframes ballPop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+
+    .draw-status{
+      font-family:'Rajdhani',sans-serif;font-size:14px;
+      color:var(--muted2);text-align:center;letter-spacing:.5px;
+    }
+    .draw-status.active{color:var(--gold);}
+
+    /* ── HISTORY STRIP ── */
+    .history-strip{
+      padding:10px 14px;
+      display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;
+    }
+    .history-strip::-webkit-scrollbar{display:none;}
+    .hist-item{
+      flex-shrink:0;background:var(--s3);border:1px solid var(--border);
+      border-radius:10px;padding:5px 10px;font-size:11px;
+      display:flex;flex-direction:column;align-items:center;gap:3px;
+    }
+    .hist-item .hi-round{color:var(--muted2);font-size:9px;text-transform:uppercase;}
+    .hist-item .hi-nums{display:flex;gap:3px;}
+    .mini-ball{
+      width:20px;height:20px;border-radius:50%;
+      font-size:8px;font-weight:700;color:#000;
+      display:inline-flex;align-items:center;justify-content:center;
+    }
+    .mini-ball.c1{background:#FFD700;}
+    .mini-ball.c2{background:#ff4444;}
+    .mini-ball.c3{background:#4488ff;}
+    .mini-ball.c4{background:#00cc44;}
+    .mini-ball.c5{background:#cc44ff;}
+
+    /* ── BET FORM ── */
+    .bet-form{padding:14px;}
+    .form-group{margin-bottom:12px;}
+    .form-label{
+      display:block;font-size:11px;color:var(--muted2);
+      text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px;
+    }
+
+    /* Category selector */
+    .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+    .cat-btn{
+      background:rgba(255,215,0,.06);border:1px solid var(--border);
+      border-radius:10px;padding:9px 4px;text-align:center;
+      cursor:pointer;transition:all .15s;user-select:none;
+    }
+    .cat-btn:hover{background:rgba(255,215,0,.14);border-color:var(--gold2);}
+    .cat-btn.on{
+      background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,165,0,.15));
+      border-color:var(--gold);
+    }
+    .cat-btn .cb-name{font-size:12px;font-weight:700;color:var(--gold);}
+    .cat-btn .cb-odds{font-size:10px;color:var(--muted2);margin-top:2px;}
+    .cat-btn .cb-mult{font-size:11px;color:var(--gold3);font-weight:700;}
+
+    /* Number picker grid */
+    .nums-grid{
+      display:grid;grid-template-columns:repeat(9,1fr);gap:4px;
+    }
+    .num-btn{
+      aspect-ratio:1;border-radius:8px;border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      font-size:11px;font-weight:700;color:var(--muted2);
+      cursor:pointer;transition:all .12s;user-select:none;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .num-btn:hover{background:rgba(255,215,0,.12);color:var(--gold);border-color:var(--gold2);}
+    .num-btn.sel{
+      background:linear-gradient(135deg,var(--gold),var(--gold2));
+      color:#000;border-color:transparent;
+      box-shadow:0 2px 8px rgba(255,215,0,.3);
+      transform:scale(1.05);
+    }
+    .num-btn:disabled,.num-btn.disabled-num{opacity:.3;cursor:not-allowed;pointer-events:none;}
+    .sel-info{
+      font-size:12px;color:var(--muted2);margin-top:6px;
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .sel-info span{color:var(--gold);font-weight:700;}
+
+    /* Stake */
+    .stake-row{display:flex;gap:8px;align-items:center;}
+    .stake-wrap{
+      background:var(--s3);border:1px solid var(--border2);border-radius:11px;
+      display:flex;align-items:center;padding:0 12px;flex:1;transition:border-color .2s;
+    }
+    .stake-wrap:focus-within{border-color:var(--gold);}
+    .stake-wrap input{
+      flex:1;background:transparent;border:none;color:var(--text);
+      font-size:15px;font-weight:700;padding:10px 4px;outline:none;
+      font-family:'Inter',sans-serif;width:100%;
+    }
+    .stake-wrap input::placeholder{color:var(--muted);font-weight:400;font-size:13px;}
+    .stake-wrap span{color:var(--muted2);font-size:12px;}
+    .quick-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+    .qb{
+      padding:4px 10px;border-radius:7px;font-size:11px;font-weight:700;
+      background:rgba(255,215,0,.07);border:1px solid var(--border);
+      color:var(--gold2);cursor:pointer;transition:all .12s;user-select:none;
+    }
+    .qb:hover{background:rgba(255,215,0,.18);color:#fff;}
+
+    /* Potential payout */
+    .payout-preview{
+      background:rgba(255,215,0,.05);border:1px solid var(--border);
+      border-radius:10px;padding:10px 12px;
+      display:flex;justify-content:space-between;align-items:center;
+      font-size:12px;color:var(--muted2);
+    }
+    .payout-preview .pp-val{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--gold);}
+
+    /* Bet button */
+    .btn-bet{
+      width:100%;padding:13px;border-radius:12px;border:none;
+      font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;
+      cursor:pointer;transition:all .15s;letter-spacing:.5px;
+      background:linear-gradient(135deg,var(--gold),var(--gold2));
+      color:#000;box-shadow:0 4px 20px rgba(255,215,0,.3);
+      margin-top:12px;
+    }
+    .btn-bet:hover:not(:disabled){box-shadow:0 6px 28px rgba(255,215,0,.5);transform:translateY(-1px);}
+    .btn-bet:disabled{background:#333;color:#666;cursor:not-allowed;box-shadow:none;transform:none;}
+
+    /* ── TICKETS ── */
+    .tickets-wrap{padding:10px 14px;display:flex;flex-direction:column;gap:8px;}
+    .ticket{
+      background:var(--s3);border:1px solid var(--border);
+      border-radius:12px;padding:10px 12px;
+    }
+    .ticket.won{border-color:rgba(0,230,118,.4);background:rgba(0,230,118,.04);}
+    .ticket.lost{border-color:rgba(255,68,68,.3);background:rgba(255,68,68,.04);}
+    .ticket.partial{border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.04);}
+    .ticket-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+    .ticket-cat{font-size:12px;font-weight:700;color:var(--gold);}
+    .chip{padding:3px 10px;border-radius:999px;font-weight:800;font-size:11px;}
+    .chip.win{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.3);}
+    .chip.lose{background:rgba(255,68,68,.1);color:var(--red);border:1px solid rgba(255,68,68,.3);}
+    .chip.partial{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.3);}
+    .chip.pend{background:rgba(56,189,248,.08);color:var(--blue);border:1px solid rgba(56,189,248,.25);}
+    .ticket-nums{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+    .tn{
+      width:28px;height:28px;border-radius:50%;
+      background:var(--s4);border:1px solid var(--border);
+      font-size:10px;font-weight:700;color:var(--muted2);
+      display:inline-flex;align-items:center;justify-content:center;
+    }
+    .tn.hit{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border-color:transparent;}
+    .ticket-footer{
+      display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);
+      border-top:1px solid var(--border);padding-top:6px;margin-top:4px;
+    }
+    .ticket-footer strong{color:var(--text);}
+
+    /* ── WIN BANNER ── */
+    .win-banner{
+      position:fixed;top:80px;left:50%;transform:translateX(-50%);
+      z-index:500;max-width:92vw;width:360px;
+      background:linear-gradient(135deg,#0a0800,#1a1200);
+      border:1px solid rgba(255,215,0,.5);
+      border-radius:20px;
+      box-shadow:0 14px 50px rgba(0,0,0,.8),0 0 60px rgba(255,215,0,.15);
+      padding:22px 20px;text-align:center;
+      animation:bannerIn .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .win-banner.hidden{display:none;}
+    @keyframes bannerIn{from{opacity:0;transform:translateX(-50%) translateY(-24px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    .wb-emoji{font-size:36px;margin-bottom:6px;}
+    .wb-title{font-size:12px;color:rgba(255,215,0,.6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+    .wb-amount{font-family:'Rajdhani',sans-serif;font-size:40px;font-weight:700;color:var(--gold);line-height:1;}
+    .wb-sub{font-size:12px;color:var(--muted2);margin-top:6px;}
+    .wb-close{
+      margin-top:12px;padding:7px 20px;border-radius:8px;border:1px solid var(--border2);
+      background:transparent;color:var(--muted2);cursor:pointer;font-size:12px;
+    }
+
+    /* ── FLASH ── */
+    .flash-bar{
+      position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+      z-index:300;max-width:90vw;width:380px;
+      padding:12px 16px;border-radius:12px;font-size:13px;font-weight:600;
+      text-align:center;display:none;
+    }
+    .flash-bar.show{display:block;animation:flashIn .2s ease;}
+    .flash-bar.danger{background:#150000;border:1px solid rgba(255,68,68,.4);color:#ff8080;}
+    .flash-bar.success{background:#001508;border:1px solid rgba(0,230,118,.35);color:var(--green);}
+    .flash-bar.info{background:var(--s3);border:1px solid var(--border);color:var(--muted2);}
+    @keyframes flashIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+    /* ── ODDS TABLE ── */
+    .odds-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .odds-table th{padding:7px 12px;text-align:left;color:var(--muted2);font-size:10px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);}
+    .odds-table td{padding:8px 12px;border-bottom:1px solid rgba(255,215,0,.05);}
+    .odds-table tr:last-child td{border-bottom:none;}
+    .odds-table .td-cat{font-weight:700;color:var(--gold);}
+    .odds-table .td-mult{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--text);font-size:14px;}
+    .odds-table .td-prob{color:var(--muted2);}
+    .odds-table .td-ex{font-size:11px;color:var(--blue);}
+
+    .empty-state{padding:24px;text-align:center;color:var(--muted2);font-size:13px;}
+    .empty-state i{font-size:28px;opacity:.3;display:block;margin-bottom:8px;}
+
+    @media(max-width:480px){
+      .nums-grid{grid-template-columns:repeat(9,1fr);}
+      .cat-grid{grid-template-columns:repeat(2,1fr);}
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="sp"></div>
+  <p>A carregar Loteria 1/90…</p>
+</div>
+
+<!-- HEADER -->
+<header>
+  <a href="perfil.html?jogos=1" class="back"><i class="fa-solid fa-chevron-left"></i> Voltar</a>
+  <div>
+    <div class="brand"><i class="fa-solid fa-ticket" style="margin-right:6px;font-size:15px"></i>LOTERIA 1/90</div>
+    <div class="brand-sub">Invest Pro · Sorteio ao vivo</div>
+  </div>
+  <div class="header-saldos">
+    <div class="hs-item">
+      <span class="hs-lbl">Disponível</span>
+      <span class="hs-val disp" id="saldoDispVal">—</span>
+    </div>
+    <div class="hs-item">
+      <span class="hs-lbl">Investimento</span>
+      <span class="hs-val inv" id="saldoInvVal">—</span>
+    </div>
+  </div>
+</header>
+
+<!-- PHASE BAR -->
+<div class="phase-bar">
+  <div class="phase-info">
+    <div class="phase-dot betting" id="phaseDot"></div>
+    <span class="phase-label betting" id="phaseLabel">Apostas Abertas</span>
+    <span class="round-num" id="roundNum">Rodada #1</span>
+  </div>
+  <div class="timer-display safe" id="timerDisplay">60</div>
+</div>
+
+<main>
+
+  <!-- SORTEIO -->
+  <div class="panel">
+    <div class="ptitle">
+      <span><i class="fa-solid fa-circle-dot" style="margin-right:6px;color:var(--gold)"></i>Sorteio ao Vivo</span>
+      <span class="sub" id="drawPhaseInfo">Aguardando sorteio</span>
+    </div>
+    <div class="draw-stage">
+      <div class="drawn-balls" id="drawnBalls">
+        <!-- balls appear here -->
+      </div>
+      <div class="draw-status" id="drawStatus">Fase de apostas a decorrer…</div>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div class="panel">
+    <div class="ptitle">
+      <span><i class="fa-solid fa-clock-rotate-left" style="margin-right:6px"></i>Últimos Sorteios</span>
+    </div>
+    <div class="history-strip" id="historyStrip">
+      <span style="color:var(--muted);font-size:12px;padding:4px 0">Ainda não há histórico…</span>
+    </div>
+  </div>
+
+  <!-- APOSTAR -->
+  <div class="panel" id="betPanel">
+    <div class="ptitle">
+      <span><i class="fa-solid fa-hand-holding-dollar" style="margin-right:6px"></i>Fazer Aposta</span>
+      <span class="sub">Mín. 50 Kz · saldo investimento</span>
+    </div>
+    <div class="bet-form">
+
+      <!-- CATEGORIA -->
+      <div class="form-group">
+        <label class="form-label">Categoria de aposta</label>
+        <div class="cat-grid">
+          <div class="cat-btn on" data-cat="2" onclick="selectCat(2)">
+            <div class="cb-name">Ambo</div>
+            <div class="cb-odds">2 números</div>
+            <div class="cb-mult">×50</div>
+          </div>
+          <div class="cat-btn" data-cat="3" onclick="selectCat(3)">
+            <div class="cb-name">Terno</div>
+            <div class="cb-odds">3 números</div>
+            <div class="cb-mult">×250</div>
+          </div>
+          <div class="cat-btn" data-cat="4" onclick="selectCat(4)">
+            <div class="cb-name">Quaderna</div>
+            <div class="cb-odds">4 números</div>
+            <div class="cb-mult">×1.500</div>
+          </div>
+          <div class="cat-btn" data-cat="5" onclick="selectCat(5)">
+            <div class="cb-name">Cinquena</div>
+            <div class="cb-odds">5 números</div>
+            <div class="cb-mult">×6.000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESCOLHA DE NÚMEROS -->
+      <div class="form-group">
+        <label class="form-label">Escolha os números <span id="numSelLabel">(escolha 2)</span></label>
+        <div class="nums-grid" id="numsGrid"></div>
+        <div class="sel-info">
+          <span>Selecionados: <span id="selCountEl">0</span></span>
+          <span id="selNeedEl" style="color:var(--muted2)">Precisa de 2</span>
+        </div>
+      </div>
+
+      <!-- VALOR -->
+      <div class="form-group">
+        <label class="form-label">Valor da aposta</label>
+        <div class="stake-wrap">
+          <input id="stakeInput" type="number" min="50" step="50" placeholder="Mínimo 50 Kz…"/>
+          <span>Kz</span>
+        </div>
+        <div class="quick-row">
+          <span class="qb" onclick="setStake(50)">50</span>
+          <span class="qb" onclick="setStake(100)">100</span>
+          <span class="qb" onclick="setStake(200)">200</span>
+          <span class="qb" onclick="setStake(500)">500</span>
+          <span class="qb" onclick="setStake(1000)">1.000</span>
+          <span class="qb" onclick="stakeDouble()">×2</span>
+        </div>
+      </div>
+
+      <!-- PAYOUT PREVIEW -->
+      <div class="payout-preview" id="payoutPreview">
+        <span>Ganho potencial</span>
+        <span class="pp-val" id="payoutVal">— Kz</span>
+      </div>
+
+      <button class="btn-bet" id="btnBet" onclick="placeBet()">
+        <i class="fa-solid fa-paper-plane" style="margin-right:6px"></i>REGISTAR APOSTA
+      </button>
+    </div>
+  </div>
+
+  <!-- BILHETES DA RODADA -->
+  <div class="panel">
+    <div class="ptitle">
+      <span><i class="fa-solid fa-receipt" style="margin-right:6px"></i>Bilhetes desta Rodada</span>
+      <span class="sub" id="ticketCount">0 bilhetes</span>
+    </div>
+    <div id="ticketsWrap">
+      <div class="empty-state"><i class="fa-solid fa-ticket"></i>Ainda não apostou nesta rodada.</div>
+    </div>
+  </div>
+
+  <!-- TABELA DE ODDS -->
+  <div class="panel">
+    <div class="ptitle">
+      <span><i class="fa-solid fa-table" style="margin-right:6px"></i>Tabela de Prémios</span>
+    </div>
+    <table class="odds-table">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Acertos</th>
+          <th>Multiplicador</th>
+          <th>Probabilidade</th>
+          <th>Ex. 100 Kz</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:rgba(255,215,0,.03)">
+          <td class="td-cat" colspan="5" style="color:var(--muted2);font-size:10px;padding:6px 12px;letter-spacing:.4px">PRÉMIOS POR ACERTOS</td>
+        </tr>
+        <tr>
+          <td class="td-cat" style="color:var(--muted2)">1 acerto</td>
+          <td>qualquer cat.</td>
+          <td class="td-mult" style="color:var(--blue)">×1</td>
+          <td class="td-prob">devolve aposta</td>
+          <td class="td-ex" style="color:var(--blue)">100 Kz</td>
+        </tr>
+        <tr>
+          <td class="td-cat">2 acertos</td>
+          <td>qualquer cat.</td>
+          <td class="td-mult">×10</td>
+          <td class="td-prob">prémio parcial</td>
+          <td class="td-ex">1.000 Kz</td>
+        </tr>
+        <tr>
+          <td class="td-cat">3 acertos</td>
+          <td>Terno / Quad. / Cinq.</td>
+          <td class="td-mult">×100</td>
+          <td class="td-prob">prémio médio</td>
+          <td class="td-ex">10.000 Kz</td>
+        </tr>
+        <tr>
+          <td class="td-cat">Ambo</td>
+          <td>2/2 completo</td>
+          <td class="td-mult">×50</td>
+          <td class="td-prob">—</td>
+          <td class="td-ex">5.000 Kz</td>
+        </tr>
+        <tr>
+          <td class="td-cat">Terno</td>
+          <td>3/3 completo</td>
+          <td class="td-mult">×250</td>
+          <td class="td-prob">—</td>
+          <td class="td-ex">25.000 Kz</td>
+        </tr>
+        <tr>
+          <td class="td-cat">Quaderna</td>
+          <td>4/4 completo</td>
+          <td class="td-mult">×1.500</td>
+          <td class="td-prob">—</td>
+          <td class="td-ex">150.000 Kz</td>
+        </tr>
+        <tr>
+          <td class="td-cat">Cinquena</td>
+          <td>5/5 completo</td>
+          <td class="td-mult">×6.000</td>
+          <td class="td-prob">—</td>
+          <td class="td-ex">600.000 Kz</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border2)">
+          <td class="td-cat" style="color:var(--blue)">Extrato</td>
+          <td>1 posição exacta</td>
+          <td class="td-mult">×8</td>
+          <td class="td-prob">~1 em 18</td>
+          <td class="td-ex">800 Kz</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="padding:8px 12px;font-size:11px;color:var(--muted2);border-top:1px solid var(--border)">
+      * Apostas em Extrato: escolha 1 número e adivinhe se sai na posição exacta (1ª a 5ª bola).
+    </div>
+  </div>
+
+</main>
+
+<!-- WIN BANNER -->
+<div class="win-banner hidden" id="winBanner">
+  <div class="wb-emoji">🏆</div>
+  <div class="wb-title" id="wbTitle">Ganhou!</div>
+  <div class="wb-amount" id="wbAmount">+0 Kz</div>
+  <div class="wb-sub" id="wbSub">Saldo disponível actualizado</div>
+  <button class="wb-close" onclick="document.getElementById('winBanner').classList.add('hidden')">Fechar</button>
+</div>
+
+<!-- FLASH -->
+<div class="flash-bar" id="flashBar"></div>
+
+<script>
+/* ════════════════════════════════════════
+   SUPABASE
+════════════════════════════════════════ */
+const SB_URL = "https://tuaclpevpkqvoeggywub.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWNscGV2cGtxdm9lZ2d5d3ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3Njc2NzEsImV4cCI6MjA5NjM0MzY3MX0.ptGzyNLv0gYyq2DgbXOlBFZgK1VbKdaLAdFwLugom2A";
+const db = window.supabase.createClient(SB_URL, SB_KEY);
+
+let usuario = null;
+
+function getCache(){
+  const u = localStorage.getItem("usuario");
+  if(!u||u==="null"||u==="undefined") return null;
+  try{ return JSON.parse(u); }catch{ return null; }
+}
+async function carregarUsuario(){
+  const cache = getCache();
+  if(!cache?.id){ window.location.replace("login.html"); return false; }
+  const { data, error } = await db.from("usuarios").select("*").eq("id",cache.id).single();
+  if(error||!data){ usuario=cache; }
+  else{ usuario=data; localStorage.setItem("usuario",JSON.stringify(data)); }
+  actualizarHeaderSaldos();
+  return true;
+}
+function actualizarHeaderSaldos(){
+  if(!usuario) return;
+  document.getElementById("saldoDispVal").textContent = fmtKz(usuario.saldo_disponivel);
+  document.getElementById("saldoInvVal").textContent  = fmtKz(usuario.saldo_investimento);
+}
+async function fetchFreshUser(){
+  if(!usuario?.id) return null;
+  const { data } = await db.from("usuarios").select("saldo_disponivel,saldo_investimento,lucro").eq("id",usuario.id).single();
+  return data||null;
+}
+async function debitarInvestimento(valor){
+  const fresh = await fetchFreshUser(); if(!fresh) return false;
+  const atual = Number(fresh.saldo_investimento||0);
+  if(atual < valor) return false;
+  const novo = atual - valor;
+  const { error } = await db.from("usuarios").update({saldo_investimento:novo}).eq("id",usuario.id);
+  if(error) return false;
+  usuario.saldo_investimento = novo;
+  localStorage.setItem("usuario",JSON.stringify(usuario));
+  actualizarHeaderSaldos();
+  return true;
+}
+async function creditarDisponivel(valor){
+  const fresh = await fetchFreshUser(); if(!fresh) return;
+  const novoD = Number(fresh.saldo_disponivel||0) + valor;
+  const novoL = Number(fresh.lucro||0) + valor;
+  await db.from("usuarios").update({saldo_disponivel:novoD,lucro:novoL}).eq("id",usuario.id);
+  usuario.saldo_disponivel = novoD; usuario.lucro = novoL;
+  localStorage.setItem("usuario",JSON.stringify(usuario));
+  actualizarHeaderSaldos();
+}
+
+/* ════════════════════════════════════════
+   UTILS
+════════════════════════════════════════ */
+function fmtKz(v){ return (Math.round(Number(v)||0)).toLocaleString('pt-AO')+' Kz'; }
+
+let _fTimer = null;
+function flash(msg, type='info'){
+  const el = document.getElementById('flashBar');
+  el.textContent = msg;
+  el.className = 'flash-bar show '+type;
+  clearTimeout(_fTimer);
+  _fTimer = setTimeout(()=>{ el.className='flash-bar'; }, 3500);
+}
+
+/* ════════════════════════════════════════
+   ODDS — Probabilidades reais da Loteria 1/90
+   Sorteiam-se 5 números de 1–90 sem repetição.
+   C(90,5)  = 43.949.268 combinações possíveis
+
+   Ambo    (2/5): C(5,2)*C(85,0)/C(90,2) ≈ 1/88,6 → mult ×50   (house ~43%)
+   Terno   (3/5): C(5,3)/C(90,3)         ≈ 1/1748 → mult ×250  (house ~85%)  [jackpot tier]
+   Quaderna(4/5): C(5,4)/C(90,4)         ≈ 1/51984→ mult ×1500 (house ~97%)
+   Cinquena(5/5): 1/C(90,5)              ≈ 1/43.9M→ mult ×6000 (house ~86%)
+   Extrato (1 exato numa posição): 1/90   → mult ×8  (house ~11%)
+════════════════════════════════════════ */
+const CATS = {
+  2: { name:'Ambo',    need:2, mult:50,   label:'Ambo (×50)'   },
+  3: { name:'Terno',   need:3, mult:250,  label:'Terno (×250)' },
+  4: { name:'Quaderna',need:4, mult:1500, label:'Quaderna (×1.500)' },
+  5: { name:'Cinquena',need:5, mult:6000, label:'Cinquena (×6.000)' },
+  6: { name:'Extrato', need:1, mult:8,    label:'Extrato (×8) — 1 posição exacta' }
+};
+
+// Multiplicadores parciais por nº de acertos (oculto)
+// 0 acertos → perde | 1 → devolve (×1) | 2 → ×10 | 3 → ×100 | 4 → ×1500 | 5 → ×6000
+const PARTIAL_MULT = { 0:0, 1:1, 2:10, 3:100, 4:1500, 5:6000 };
+const BALL_COLORS = ['c1','c2','c3','c4','c5'];
+const MIN_BET = 50;
+const BETTING_SECS  = 60;
+const DRAW_SECS     = 20;  // time to animate draw
+const RESULTS_SECS  = 15;  // show results before next round
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let round       = 1;
+let phase       = 'betting';   // 'betting' | 'drawing' | 'results'
+let countdown   = BETTING_SECS;
+let tickets     = [];          // current round tickets
+let drawnNums   = [];          // 5 drawn numbers
+let history     = [];          // [{round, nums}]
+let selectedCat = 2;
+let selectedNums= new Set();
+let tickerInterval = null;
+let drawAnimTimeout= null;
+
+/* ════════════════════════════════════════
+   NUMBER GRID (1–90)
+════════════════════════════════════════ */
+function buildNumGrid(){
+  const grid = document.getElementById('numsGrid');
+  grid.innerHTML='';
+  for(let i=1;i<=90;i++){
+    const btn = document.createElement('button');
+    btn.className = 'num-btn';
+    btn.textContent = i;
+    btn.dataset.n = i;
+    btn.onclick = ()=> toggleNum(i, btn);
+    grid.appendChild(btn);
+  }
+}
+function toggleNum(n, btn){
+  if(phase !== 'betting') return;
+  if(selectedNums.has(n)){
+    selectedNums.delete(n);
+    btn.classList.remove('sel');
+  } else {
+    const need = CATS[selectedCat].need;
+    if(selectedNums.size >= need){
+      flash(`Categoria ${CATS[selectedCat].name} só permite ${need} número(s).`,'info');
+      return;
+    }
+    selectedNums.add(n);
+    btn.classList.add('sel');
+  }
+  updateSelInfo();
+  updatePayoutPreview();
+}
+function clearNumSel(){
+  selectedNums.clear();
+  document.querySelectorAll('.num-btn').forEach(b=>b.classList.remove('sel'));
+  updateSelInfo();
+  updatePayoutPreview();
+}
+function updateSelInfo(){
+  const need = CATS[selectedCat].need;
+  const got  = selectedNums.size;
+  document.getElementById('selCountEl').textContent = got;
+  document.getElementById('selNeedEl').textContent  = got>=need ? '✓ Pronto' : `Precisa de ${need}`;
+  document.getElementById('numSelLabel').textContent= `(escolha ${need})`;
+}
+function updatePayoutPreview(){
+  const stake = Number(document.getElementById('stakeInput').value)||0;
+  if(!stake||stake<MIN_BET){ document.getElementById('payoutVal').textContent='— Kz'; return; }
+  const payout = Math.round(stake * CATS[selectedCat].mult);
+  document.getElementById('payoutVal').textContent = fmtKz(payout);
+}
+
+/* ════════════════════════════════════════
+   CATEGORY
+════════════════════════════════════════ */
+function selectCat(cat){
+  selectedCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>{
+    b.classList.toggle('on', parseInt(b.dataset.cat)===cat);
+  });
+  clearNumSel();
+}
+
+/* ════════════════════════════════════════
+   STAKE
+════════════════════════════════════════ */
+function setStake(v){ document.getElementById('stakeInput').value=v; updatePayoutPreview(); }
+function stakeDouble(){
+  const el = document.getElementById('stakeInput');
+  el.value = Math.max(MIN_BET, (Number(el.value)||0)*2);
+  updatePayoutPreview();
+}
+document.getElementById('stakeInput').addEventListener('input', updatePayoutPreview);
+
+/* ════════════════════════════════════════
+   PLACE BET
+════════════════════════════════════════ */
+async function placeBet(){
+  if(phase !== 'betting'){ flash('Apostas fechadas! Aguarde a próxima rodada.','danger'); return; }
+  const stake = Number(document.getElementById('stakeInput').value);
+  if(!stake || stake < MIN_BET){ flash(`Aposta mínima é ${fmtKz(MIN_BET)}`,'danger'); return; }
+  const need = CATS[selectedCat].need;
+  if(selectedNums.size !== need){ flash(`Selecione exactamente ${need} número(s) para ${CATS[selectedCat].name}.`,'danger'); return; }
+
+  document.getElementById('btnBet').disabled = true;
+  const ok = await debitarInvestimento(stake);
+  if(!ok){
+    flash(`Saldo Investimento insuficiente. Disponível: ${fmtKz(usuario?.saldo_investimento||0)}`,'danger');
+    document.getElementById('btnBet').disabled = false;
+    return;
+  }
+
+  const ticket = {
+    id: Date.now(),
+    cat: selectedCat,
+    nums: [...selectedNums].sort((a,b)=>a-b),
+    stake,
+    status: 'pending',
+    hits: 0,
+    payout: 0
+  };
+  tickets.push(ticket);
+  renderTickets();
+  flash(`✅ Bilhete registado! ${CATS[selectedCat].name} — ${ticket.nums.join(', ')} — ${fmtKz(stake)}`,'success');
+
+  clearNumSel();
+  document.getElementById('stakeInput').value = '';
+  document.getElementById('payoutVal').textContent = '— Kz';
+  document.getElementById('btnBet').disabled = false;
+}
+
+/* ════════════════════════════════════════
+   RENDER TICKETS
+════════════════════════════════════════ */
+function renderTickets(){
+  const wrap = document.getElementById('ticketsWrap');
+  document.getElementById('ticketCount').textContent = tickets.length+' bilhete'+(tickets.length!==1?'s':'');
+  if(!tickets.length){
+    wrap.innerHTML='<div class="empty-state"><i class="fa-solid fa-ticket"></i>Ainda não apostou nesta rodada.</div>';
+    return;
+  }
+  wrap.innerHTML='';
+  tickets.slice().reverse().forEach(t=>{
+    const catInfo = CATS[t.cat];
+    let cls='', chipCls='pend', chipLabel='PENDENTE';
+    if(t.status==='won'){cls='won';chipCls='win';chipLabel='GANHOU';}
+    else if(t.status==='lost'){cls='lost';chipCls='lose';chipLabel='PERDEU';}
+    else if(t.status==='partial'){cls='partial';chipCls='partial';chipLabel='DEVOLVIDO';}
+
+    const numsHtml = t.nums.map(n=>{
+      const hit = drawnNums.includes(n);
+      return `<div class="tn${hit?' hit':''}">${n}</div>`;
+    }).join('');
+
+    const div = document.createElement('div');
+    div.className = 'ticket '+cls;
+    div.innerHTML = `
+      <div class="ticket-head">
+        <span class="ticket-cat">${catInfo.name} — ${t.nums.join(', ')}</span>
+        <span class="chip ${chipCls}">${chipLabel}</span>
+      </div>
+      <div class="ticket-nums">${numsHtml}</div>
+      <div class="ticket-footer">
+        <span>Aposta: <strong>${fmtKz(t.stake)}</strong></span>
+        <span>Potencial: <strong style="color:var(--gold)">${fmtKz(t.stake*catInfo.mult)}</strong></span>
+        ${t.status!=='pending'?`<span>Resultado: <strong style="color:${t.status==='won'?'var(--green)':t.status==='partial'?'var(--gold)':'var(--red)'}">${t.status==='won'?'+'+fmtKz(t.payout):t.status==='partial'?'Dev. '+fmtKz(t.stake):'-'+fmtKz(t.stake)}</strong></span>`:''}
+      </div>`;
+    wrap.appendChild(div);
+  });
+}
+
+/* ════════════════════════════════════════
+   DRAW — sorteia 5 números únicos de 1–90
+   [Sistema interno de controlo oculto]
+════════════════════════════════════════ */
+
+// Boost temporário de % quando jogador acertou 2 números
+let _boostRounds = 0;   // quantas rodadas ainda há boost
+let _boostActive = false;
+
+function _shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function _randomDraw5(){
+  const pool=Array.from({length:90},(_,i)=>i+1);
+  _shuffle(pool);
+  return pool.slice(0,5);
+}
+
+// Gera sorteio garantindo max "maxHits" acertos para os números do jogador
+function _drawWithMaxHits(playerNums, maxHits){
+  const pSet = new Set(playerNums);
+  let best = null;
+  // tenta até 200 vezes encontrar um sorteio com <= maxHits
+  for(let t=0;t<200;t++){
+    const d = _randomDraw5();
+    const hits = d.filter(n=>pSet.has(n)).length;
+    if(hits <= maxHits){
+      return d;
+    }
+    // guarda o de menos acertos como fallback
+    if(!best || d.filter(n=>pSet.has(n)).length < best.filter(n=>pSet.has(n)).length){
+      best = d;
+    }
+  }
+  return best; // fallback: o de menos acertos encontrado
+}
+
+// Gera sorteio garantindo EXACTAMENTE "exactHits" acertos
+function _drawWithExactHits(playerNums, exactHits){
+  const pArr = [...playerNums];
+  const pSet = new Set(pArr);
+  const nonPlayer = Array.from({length:90},(_,i)=>i+1).filter(n=>!pSet.has(n));
+
+  for(let t=0;t<300;t++){
+    // escolhe exactHits dos números do jogador
+    const chosen = _shuffle([...pArr]).slice(0, exactHits);
+    // preenche os restantes com não-jogador
+    const rest = _shuffle([...nonPlayer]).slice(0, 5-exactHits);
+    const draw = _shuffle([...chosen,...rest]);
+    // verifica
+    const hits = draw.filter(n=>pSet.has(n)).length;
+    if(hits === exactHits) return draw;
+  }
+  return _randomDraw5(); // fallback raro
+}
+
+function drawNumbers(){
+  drawnNums = [];
+
+  // Recolhe todas as apostas pendentes desta rodada
+  const pending = tickets.filter(t=>t.status==='pending');
+
+  // Se não há apostas, sorteio completamente aleatório
+  if(!pending.length){
+    drawnNums = _randomDraw5();
+    return;
+  }
+
+  // ─── Lógica oculta por categoria ───────────────────────────────
+  // Encontra a aposta "mais perigosa" (maior multiplicador)
+  // e aplica a restrição dessa categoria
+  const catPriority = [5,4,3,2,6]; // Cinquena > Quaderna > Terno > Ambo > Extrato
+  let controlTicket = null;
+  for(const cat of catPriority){
+    const t = pending.find(p=>p.cat===cat);
+    if(t){ controlTicket=t; break; }
+  }
+
+  const cat = controlTicket.cat;
+  const playerNums = controlTicket.nums;
+
+  if(cat===5){
+    // Cinquena: nunca acerta 3, 4 ou 5 → máx 2 acertos
+    drawnNums = _drawWithMaxHits(playerNums, 2);
+
+  } else if(cat===4){
+    // Quaderna: máx 2 acertos
+    drawnNums = _drawWithMaxHits(playerNums, 2);
+
+  } else if(cat===3){
+    // Terno: máx 2 acertos
+    drawnNums = _drawWithMaxHits(playerNums, 2);
+
+  } else if(cat===2){
+    // Ambo: comportamento normal, mas com boost se activo
+    if(_boostActive && _boostRounds > 0){
+      // com boost: 55% chance de acertar os 2
+      if(Math.random() < 0.55){
+        drawnNums = _drawWithExactHits(playerNums, 2);
+      } else {
+        drawnNums = _drawWithMaxHits(playerNums, 1);
+      }
+      _boostRounds--;
+      if(_boostRounds<=0) _boostActive=false;
+    } else {
+      // normal: ~25% chance de ganhar no Ambo
+      if(Math.random() < 0.25){
+        drawnNums = _drawWithExactHits(playerNums, 2);
+      } else {
+        drawnNums = _drawWithMaxHits(playerNums, 1);
+      }
+    }
+
+  } else {
+    // Extrato e outros: sorteio aleatório normal
+    drawnNums = _randomDraw5();
+  }
+
+  if(!drawnNums||drawnNums.length<5) drawnNums=_randomDraw5();
+}
+
+/* ════════════════════════════════════════
+   SETTLE TICKETS — lógica real 1/90
+   ─────────────────────────────────────
+   REGRAS:
+   • Todos os números escolhidos têm de estar
+     nos 5 sorteados → GANHOU (×mult)
+   • Basta 1 número escolhido falhar → PERDEU
+   • Excepção: se acertou exactamente 1 número
+     (independentemente de quantos escolheu)
+     → aposta DEVOLVIDA (consolação)
+════════════════════════════════════════ */
+async function settleTickets(){
+  let anyWin = false;
+  let got2Hits = false; // para activar boost
+
+  for(const t of tickets){
+    if(t.status !== 'pending') continue;
+    const hits = t.nums.filter(n => drawnNums.includes(n)).length;
+    t.hits = hits;
+    const need = CATS[t.cat].need;
+
+    const mult = PARTIAL_MULT[hits] || 0;
+
+    if(hits === 0){
+      // ❌ Nenhum acerto → perde tudo
+      t.payout = 0;
+      t.status  = 'lost';
+
+    } else if(hits === 1){
+      // 🔄 1 acerto → devolve a aposta
+      t.payout = t.stake;
+      t.status  = 'partial';
+      await creditarDisponivel(t.payout);
+
+    } else if(hits >= 2 && hits < need){
+      // 🥈 Acerto parcial (2, 3 ou 4) → prémio escalonado
+      t.payout = Math.round(t.stake * mult);
+      t.status  = 'partial';
+      anyWin    = true;
+      await creditarDisponivel(t.payout);
+
+    } else {
+      // ✅ Acertou TODOS → prémio máximo da categoria
+      t.payout = Math.round(t.stake * CATS[t.cat].mult);
+      t.status  = 'won';
+      anyWin    = true;
+      await creditarDisponivel(t.payout);
+    }
+
+    // ── Boost oculto: se acertou exactamente 2 sem ganhar completo → boost ──
+    if(hits === 2 && t.status === 'partial'){
+      got2Hits = true;
+    }
+  }
+
+  // Activa boost nas próximas 2–3 rodadas
+  if(got2Hits){
+    _boostActive  = true;
+    _boostRounds  = 2 + Math.floor(Math.random()*2); // 2 ou 3 rodadas
+  }
+
+  renderTickets();
+
+  if(anyWin){
+    // Mostra o melhor prémio (completo ou parcial)
+    const wins = tickets.filter(t=>t.status==='won'||t.status==='partial');
+    const best = wins.reduce((a,b)=>a.payout>b.payout?a:b);
+    const isFullWin = best.status === 'won';
+    const hitsLabel = isFullWin ? 'Acertou tudo!' : `${best.hits} acerto(s)!`;
+    const multUsed  = isFullWin ? CATS[best.cat].mult : PARTIAL_MULT[best.hits];
+    document.getElementById('wbTitle').textContent = isFullWin ? 'Parabéns, '+CATS[best.cat].name+'!' : '🎯 Acerto Parcial!';
+    document.getElementById('wbAmount').textContent = '+'+fmtKz(best.payout);
+    document.getElementById('wbSub').textContent = `×${multUsed} — ${hitsLabel} — ${best.nums.join(', ')} — Saldo actualizado`;
+    document.getElementById('winBanner').classList.remove('hidden');
+  } else if(tickets.some(t=>t.status==='partial')){
+    flash('Aposta devolvida — 1 acerto!','info');
+  } else if(tickets.length > 0){
+    flash('Sem acertos nesta rodada. Tente na próxima!','info');
+  }
+}
+
+/* ════════════════════════════════════════
+   DRAW ANIMATION — bolas aparecem uma a uma
+════════════════════════════════════════ */
+function animateDraw(callback){
+  const container = document.getElementById('drawnBalls');
+  container.innerHTML = '';
+  document.getElementById('drawStatus').textContent = 'A sortear…';
+  document.getElementById('drawStatus').classList.add('active');
+
+  let idx = 0;
+  function showNext(){
+    if(idx >= drawnNums.length){
+      document.getElementById('drawStatus').textContent = 'Sorteio concluído!';
+      document.getElementById('drawStatus').classList.remove('active');
+      if(callback) callback();
+      return;
+    }
+    const n = drawnNums[idx];
+    const ball = document.createElement('div');
+    ball.className = 'ball '+BALL_COLORS[idx]+' pop';
+    ball.textContent = n;
+
+    // Check if any ticket hits this ball — add glow
+    const anyHit = tickets.some(t=>t.nums.includes(n));
+    if(anyHit){
+      setTimeout(()=>ball.classList.add('hit'), 500);
+    }
+
+    container.appendChild(ball);
+    idx++;
+    drawAnimTimeout = setTimeout(showNext, 900);
+  }
+  showNext();
+}
+
+/* ════════════════════════════════════════
+   HISTORY
+════════════════════════════════════════ */
+function addHistory(roundN, nums){
+  history.unshift({round:roundN, nums:[...nums]});
+  if(history.length > 10) history.pop();
+  renderHistory();
+}
+function renderHistory(){
+  const strip = document.getElementById('historyStrip');
+  if(!history.length){
+    strip.innerHTML='<span style="color:var(--muted);font-size:12px;padding:4px 0">Ainda não há histórico…</span>';
+    return;
+  }
+  strip.innerHTML = history.map(h=>`
+    <div class="hist-item">
+      <span class="hi-round">Rodada #${h.round}</span>
+      <div class="hi-nums">
+        ${h.nums.map((n,i)=>`<div class="mini-ball ${BALL_COLORS[i]}">${n}</div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════════
+   PHASE MACHINE
+   betting (60s) → drawing (animate 5 bolas ~5s) → results (15s) → loop
+════════════════════════════════════════ */
+function setPhaseUI(p){
+  const dot   = document.getElementById('phaseDot');
+  const label = document.getElementById('phaseLabel');
+  const info  = document.getElementById('drawPhaseInfo');
+  dot.className   = 'phase-dot '+p;
+  label.className = 'phase-label '+p;
+  if(p==='betting'){
+    label.textContent = 'Apostas Abertas';
+    info.textContent  = 'Aguardando sorteio';
+    document.getElementById('betPanel').style.opacity='1';
+    document.getElementById('betPanel').style.pointerEvents='';
+    document.getElementById('btnBet').disabled = false;
+  } else if(p==='drawing'){
+    label.textContent = 'A sortear…';
+    info.textContent  = 'Sorteio em curso';
+    document.getElementById('betPanel').style.opacity='.45';
+    document.getElementById('betPanel').style.pointerEvents='none';
+    document.getElementById('btnBet').disabled = true;
+  } else {
+    label.textContent = 'Resultados';
+    info.textContent  = 'Ver resultados';
+    document.getElementById('betPanel').style.opacity='.45';
+    document.getElementById('betPanel').style.pointerEvents='none';
+  }
+}
+function updateTimerUI(){
+  const el  = document.getElementById('timerDisplay');
+  const secs= Math.max(0, Math.ceil(countdown));
+  el.textContent = secs+'s';
+  if(phase==='betting'){
+    el.className = secs>20?'timer-display safe':secs>10?'timer-display warn':'timer-display';
+  } else {
+    el.className = 'timer-display';
+  }
+}
+
+function startRound(){
+  phase    = 'betting';
+  countdown= BETTING_SECS;
+  tickets  = [];
+  drawnNums= [];
+  document.getElementById('drawnBalls').innerHTML='';
+  document.getElementById('drawStatus').textContent='Fase de apostas a decorrer…';
+  document.getElementById('drawStatus').classList.remove('active');
+  document.getElementById('winBanner').classList.add('hidden');
+  document.getElementById('roundNum').textContent='Rodada #'+round;
+  setPhaseUI('betting');
+  updateTimerUI();
+  renderTickets();
+}
+
+function startDraw(){
+  phase = 'drawing';
+  setPhaseUI('drawing');
+  drawNumbers();
+  animateDraw(async ()=>{
+    await settleTickets();
+    addHistory(round, drawnNums);
+    phase    = 'results';
+    countdown= RESULTS_SECS;
+    setPhaseUI('results');
+  });
+}
+
+// Main ticker — runs every 200ms for smooth countdown
+function startTicker(){
+  let lastTick = Date.now();
+  tickerInterval = setInterval(()=>{
+    const now = Date.now();
+    const dt  = (now - lastTick) / 1000;
+    lastTick  = now;
+
+    if(phase === 'drawing') return; // drawing managed by animation
+
+    countdown -= dt;
+    updateTimerUI();
+
+    if(phase === 'betting' && countdown <= 0){
+      clearTimeout(drawAnimTimeout);
+      startDraw();
+      return;
+    }
+    if(phase === 'results' && countdown <= 0){
+      round++;
+      startRound();
+    }
+  }, 200);
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+(async function init(){
+  const ok = await carregarUsuario();
+  if(!ok) return;
+  document.getElementById('loadingOverlay').classList.add('hide');
+  buildNumGrid();
+  startRound();
+  startTicker();
+})();
+</script>
+</body>
+</html>
+
