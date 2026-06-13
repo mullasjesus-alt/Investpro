@@ -27,18 +27,14 @@ body { background:#050505; color:#fff; padding-bottom:100px; }
   padding:18px 20px 16px;
   display:flex; align-items:center; gap:16px;
 }
-.foto-wrapper {
-  position:relative; flex-shrink:0;
-}
+.foto-wrapper { position:relative; flex-shrink:0; }
 .foto-avatar {
   width:56px; height:56px; border-radius:50%;
   background:linear-gradient(135deg,#8B5CF6,#4F46E5);
   display:flex; justify-content:center; align-items:center;
   font-size:22px; color:#fff; overflow:hidden; border:2px solid #8B5CF6;
 }
-.foto-avatar img {
-  width:100%; height:100%; object-fit:cover; border-radius:50%;
-}
+.foto-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 .topo-info h2 { font-size:18px; font-weight:bold; }
 .topo-info p  { color:#aaa; font-size:13px; margin-top:2px; }
 .vip-pill {
@@ -73,6 +69,7 @@ body { background:#050505; color:#fff; padding-bottom:100px; }
   font-size:17px; flex-shrink:0;
 }
 .menu-icon.verde { background:linear-gradient(135deg,#16a34a,#15803d); }
+.menu-icon.laranja { background:linear-gradient(135deg,#ea580c,#c2410c); }
 .menu-icon.cinza { background:#1e1e2e; }
 .menu-text { flex:1; }
 .menu-text h3 { font-size:15px; font-weight:bold; }
@@ -101,7 +98,6 @@ body { background:#050505; color:#fff; padding-bottom:100px; }
   overflow-y:auto;
 }
 .subpagina-overlay.show { transform:translateX(0); }
-
 .sub-header {
   display:flex; align-items:center; gap:14px;
   padding:18px 20px; border-bottom:1px solid #1a1a1a;
@@ -117,10 +113,8 @@ body { background:#050505; color:#fff; padding-bottom:100px; }
 
 /* ── SUBPÁGINA INFO PESSOAL ── */
 .sub-corpo { padding:24px 20px; }
-
 .foto-edit-area {
-  display:flex; flex-direction:column; align-items:center;
-  margin-bottom:30px;
+  display:flex; flex-direction:column; align-items:center; margin-bottom:30px;
 }
 .foto-grande {
   width:90px; height:90px; border-radius:50%;
@@ -129,27 +123,20 @@ body { background:#050505; color:#fff; padding-bottom:100px; }
   font-size:36px; color:#fff; overflow:hidden;
   border:3px solid #8B5CF6; margin-bottom:14px;
 }
-.foto-grande img {
-  width:100%; height:100%; object-fit:cover; border-radius:50%;
-}
+.foto-grande img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 .btn-trocar-foto {
-  padding:10px 22px;
-  background:#111; border:1px solid #333;
+  padding:10px 22px; background:#111; border:1px solid #333;
   color:#8B5CF6; border-radius:12px; font-size:14px;
-  font-weight:bold; cursor:pointer; display:flex;
-  align-items:center; gap:8px;
+  font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:8px;
 }
 input[type="file"] { display:none; }
 .btn-salvar-foto {
   margin-top:10px; padding:12px 30px;
   background:linear-gradient(90deg,#8B5CF6,#4F46E5);
   border:none; border-radius:12px; color:#fff;
-  font-size:15px; font-weight:bold; cursor:pointer;
-  display:none;
+  font-size:15px; font-weight:bold; cursor:pointer; display:none;
 }
 .btn-salvar-foto.show { display:block; }
-
-/* Campos info */
 .campo {
   background:#0d0d14; border:1px solid #1e1e2e;
   border-radius:16px; padding:16px 18px; margin-bottom:12px;
@@ -158,9 +145,7 @@ input[type="file"] { display:none; }
 .campo p { font-size:16px; font-weight:bold; margin-top:5px; color:#fff; }
 
 /* ── SUBPÁGINA SOBRE NÓS ── */
-.sobre-logo {
-  text-align:center; padding:30px 20px 20px;
-}
+.sobre-logo { text-align:center; padding:30px 20px 20px; }
 .sobre-logo .ico {
   width:70px; height:70px; border-radius:22px;
   background:linear-gradient(135deg,#8B5CF6,#4F46E5);
@@ -169,7 +154,6 @@ input[type="file"] { display:none; }
 }
 .sobre-logo h1 { font-size:22px; font-weight:bold; }
 .sobre-logo .versao { color:#555; font-size:13px; margin-top:4px; }
-
 .sobre-card {
   background:#0d0d14; border:1px solid #1e1e2e;
   border-radius:18px; padding:20px; margin:0 20px 16px;
@@ -180,7 +164,6 @@ input[type="file"] { display:none; }
   display:flex; align-items:center; gap:8px;
 }
 .sobre-card p { color:#aaa; font-size:14px; line-height:1.75; }
-
 .horario-row {
   display:flex; justify-content:space-between; align-items:center;
   padding:10px 0; border-bottom:1px solid #1a1a1a;
@@ -188,6 +171,82 @@ input[type="file"] { display:none; }
 .horario-row:last-child { border-bottom:none; }
 .horario-row .dia { color:#fff; font-size:14px; }
 .horario-row .hora { color:#00ff73; font-size:14px; font-weight:bold; }
+
+/* ══ TERMOS E CONDIÇÕES ══ */
+.termos-hero {
+  background:linear-gradient(135deg,#0a0a1a 0%,#0d0620 50%,#0a0d1a 100%);
+  padding:30px 20px 24px; text-align:center; position:relative; overflow:hidden;
+}
+.termos-hero::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 400px 250px at 50% 60%,rgba(139,92,246,.12),transparent);
+  pointer-events:none;
+}
+.termos-hero .t-ico {
+  width:70px; height:70px; border-radius:22px;
+  background:linear-gradient(135deg,#ea580c,#8B5CF6);
+  display:flex; justify-content:center; align-items:center;
+  font-size:30px; margin:0 auto 16px;
+  box-shadow:0 8px 24px rgba(234,88,12,.3);
+}
+.termos-hero h1 {
+  font-size:22px; font-weight:900;
+  background:linear-gradient(90deg,#fff 30%,#a78bfa);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  margin-bottom:6px;
+}
+.termos-hero p { color:#666; font-size:12px; }
+.termos-hero .versao-termos {
+  display:inline-block; margin-top:10px;
+  background:rgba(139,92,246,.15); border:1px solid rgba(139,92,246,.3);
+  color:#a78bfa; font-size:11px; font-weight:700;
+  padding:4px 14px; border-radius:20px; letter-spacing:.5px;
+}
+
+.termos-secao {
+  background:#0d0d14; border:1px solid #1e1e2e;
+  border-radius:18px; padding:20px; margin:0 16px 14px;
+}
+.termos-secao-titulo {
+  display:flex; align-items:center; gap:10px;
+  font-size:15px; font-weight:900; color:#fff;
+  margin-bottom:14px; padding-bottom:10px;
+  border-bottom:1px solid #1e1e2e;
+}
+.termos-secao-titulo .t-badge {
+  width:30px; height:30px; border-radius:9px;
+  background:linear-gradient(135deg,#8B5CF6,#4F46E5);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; flex-shrink:0;
+}
+.termos-item {
+  display:flex; gap:10px; margin-bottom:12px; padding-bottom:12px;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.termos-item:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
+.termos-item .dot {
+  width:6px; height:6px; border-radius:50%; background:#8B5CF6;
+  flex-shrink:0; margin-top:7px;
+}
+.termos-item p { font-size:13px; color:#aaa; line-height:1.7; }
+.termos-item p b { color:#fff; }
+.termos-aviso {
+  margin:0 16px 14px; background:#1a0d0d;
+  border:1px solid rgba(255,77,77,.25);
+  border-radius:16px; padding:16px;
+  display:flex; gap:12px; align-items:flex-start;
+}
+.termos-aviso .av-ico { font-size:20px; flex-shrink:0; margin-top:2px; }
+.termos-aviso p { font-size:13px; color:#aaa; line-height:1.65; }
+.termos-aviso p b { color:#ff6b6b; }
+.termos-ok-btn {
+  display:block; margin:20px 16px 30px;
+  padding:15px; text-align:center;
+  background:linear-gradient(90deg,#8B5CF6,#4F46E5);
+  border:none; border-radius:16px; color:#fff;
+  font-size:16px; font-weight:900; cursor:pointer;
+  box-shadow:0 6px 20px rgba(139,92,246,.35);
+}
 
 /* ══ ALERTA ══ */
 .alerta-overlay {
@@ -237,8 +296,7 @@ input[type="file"] { display:none; }
 }
 .fb-overlay.show { display:flex; }
 @keyframes fbFade { from{opacity:0} to{opacity:1} }
-@keyframes fbPop  { from{opacity:0; transform:translateY(20px) scale(0.95)} to{opacity:1; transform:translateY(0) scale(1)} }
-
+@keyframes fbPop  { from{opacity:0;transform:translateY(20px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
 .fb-card {
   background:linear-gradient(160deg,#101827 0%,#0a0f1a 100%);
   border:1px solid rgba(24,119,242,0.35);
@@ -259,20 +317,13 @@ input[type="file"] { display:none; }
 .fb-close:hover { background:rgba(255,255,255,0.18); }
 .fb-logo {
   width:78px; height:78px; margin:6px auto 16px;
-  border-radius:50%;
-  background:#1877F2;
+  border-radius:50%; background:#1877F2;
   display:flex; align-items:center; justify-content:center;
   box-shadow:0 10px 30px rgba(24,119,242,0.55);
 }
 .fb-logo svg { width:46px; height:46px; }
-.fb-card h3 {
-  font-size:19px; font-weight:bold; color:#fff;
-  margin-bottom:8px; letter-spacing:0.2px;
-}
-.fb-card p {
-  color:#a8b3c7; font-size:14px; line-height:1.55;
-  margin-bottom:20px;
-}
+.fb-card h3 { font-size:19px; font-weight:bold; color:#fff; margin-bottom:8px; letter-spacing:0.2px; }
+.fb-card p  { color:#a8b3c7; font-size:14px; line-height:1.55; margin-bottom:20px; }
 .fb-card p b { color:#1877F2; }
 .fb-btn {
   display:flex; align-items:center; justify-content:center; gap:10px;
@@ -286,122 +337,29 @@ input[type="file"] { display:none; }
 .fb-btn:hover { transform:translateY(-1px); box-shadow:0 12px 28px rgba(24,119,242,0.6); }
 .fb-btn:active { transform:translateY(0); }
 .fb-btn svg { width:20px; height:20px; }
-.fb-skip {
-  margin-top:12px; background:none; border:none;
-  color:#666; font-size:12px; cursor:pointer; padding:6px;
-}
+.fb-skip { margin-top:12px; background:none; border:none; color:#666; font-size:12px; cursor:pointer; padding:6px; }
 .fb-skip:hover { color:#aaa; }
 
-/* ══ SUBPÁGINA JOGOS ══ */
-.jogos-hero {
-  background: linear-gradient(135deg, #0d0620 0%, #130a2e 50%, #0a0d20 100%);
-  padding: 32px 20px 24px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+/* ── AVISO INATIVIDADE ── */
+.inatividade-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.92);
+  display:none; justify-content:center; align-items:center;
+  z-index:20000; padding:20px;
 }
-.jogos-hero::before {
-  content: '';
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 300px 200px at 20% 50%, rgba(139,92,246,.18), transparent),
-    radial-gradient(ellipse 300px 200px at 80% 50%, rgba(79,70,229,.15), transparent);
-  pointer-events: none;
+.inatividade-overlay.show { display:flex; }
+.inatividade-card {
+  background:#121212; border:1px solid #8B5CF6;
+  border-radius:20px; padding:30px 25px; width:90%;
+  max-width:340px; text-align:center;
 }
-.jogos-hero .badge-novo {
-  display: inline-block;
-  background: linear-gradient(90deg,#8B5CF6,#4F46E5);
-  color: #fff; font-size: 10px; font-weight: 800;
-  letter-spacing: 1.5px; text-transform: uppercase;
-  padding: 4px 12px; border-radius: 20px; margin-bottom: 14px;
+.inatividade-card .ico { font-size:48px; margin-bottom:14px; }
+.inatividade-card h3  { font-size:20px; margin-bottom:8px; }
+.inatividade-card p   { color:#aaa; font-size:14px; line-height:1.6; margin-bottom:20px; }
+.inatividade-card .countdown { font-size:28px; font-weight:900; color:#8B5CF6; margin-bottom:20px; }
+.btn-continuar {
+  width:100%; padding:13px; background:linear-gradient(90deg,#8B5CF6,#4F46E5);
+  border:none; border-radius:12px; color:#fff; font-size:15px; font-weight:bold; cursor:pointer;
 }
-.jogos-hero h1 {
-  font-size: 26px; font-weight: 900; line-height: 1.2; margin-bottom: 10px;
-  background: linear-gradient(90deg, #fff 30%, #a78bfa);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
-.jogos-hero p {
-  color: #8b8baa; font-size: 14px; line-height: 1.6; max-width: 300px; margin: 0 auto;
-}
-.jogos-stats {
-  display: flex; justify-content: center; gap: 24px;
-  margin-top: 20px;
-}
-.jogos-stats .st {
-  text-align: center;
-}
-.jogos-stats .st-val {
-  font-size: 18px; font-weight: 900; color: #a78bfa;
-}
-.jogos-stats .st-lbl {
-  font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px;
-}
-
-.jogos-grid {
-  padding: 20px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.jogo-card {
-  background: #0d0d14;
-  border: 1px solid #1e1e2e;
-  border-radius: 20px;
-  overflow: hidden;
-  cursor: pointer;
-  text-decoration: none;
-  display: block;
-  transition: transform 0.18s, border-color 0.18s;
-  position: relative;
-}
-.jogo-card:active { transform: scale(0.97); }
-.jogo-card:hover  { border-color: #8B5CF6; }
-.jogo-card-img {
-  width: 100%; aspect-ratio: 1/1;
-  object-fit: cover; display: block;
-  background: #111;
-}
-.jogo-card-img-placeholder {
-  width: 100%; aspect-ratio: 1/1;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 8px;
-}
-.jogo-card-info {
-  padding: 12px 14px;
-}
-.jogo-card-info h3 {
-  font-size: 15px; font-weight: 800; margin-bottom: 3px; color: #fff;
-}
-.jogo-card-info p {
-  font-size: 11px; color: #555; line-height: 1.4;
-}
-.jogo-card .hot-badge {
-  position: absolute; top: 10px; right: 10px;
-  background: linear-gradient(90deg,#ef4444,#dc2626);
-  color: #fff; font-size: 9px; font-weight: 800;
-  padding: 3px 8px; border-radius: 20px; letter-spacing: .5px;
-}
-.jogo-card .new-badge {
-  position: absolute; top: 10px; right: 10px;
-  background: linear-gradient(90deg,#8B5CF6,#4F46E5);
-  color: #fff; font-size: 9px; font-weight: 800;
-  padding: 3px 8px; border-radius: 20px; letter-spacing: .5px;
-}
-
-.jogos-aviso {
-  margin: 0 20px 24px;
-  background: #0d0d14; border: 1px solid #1e1e2e;
-  border-radius: 16px; padding: 16px;
-  display: flex; align-items: center; gap: 12px;
-}
-.jogos-aviso .av-ico {
-  font-size: 22px; flex-shrink: 0;
-}
-.jogos-aviso p {
-  font-size: 12px; color: #666; line-height: 1.6;
-}
-.jogos-aviso p strong { color: #a78bfa; }
 </style>
 </head>
 <body>
@@ -424,7 +382,8 @@ input[type="file"] { display:none; }
     </div>
     <h3>Segue-nos no <b>Facebook</b></h3>
     <p>Fica a par de todas as <b>ofertas, bónus</b> e novidades exclusivas da nossa comunidade!</p>
-    <a href="https://www.facebook.com/profile.php?id=61590374835901" target="_blank" rel="noopener" class="fb-btn">
+    <!-- LINK FACEBOOK ATUALIZADO -->
+    <a href="https://www.facebook.com/profile.php?id=61590914334232" target="_blank" rel="noopener" class="fb-btn">
       <svg viewBox="0 0 24 24" fill="#fff"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.99 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.99 22 12z"/></svg>
       Seguir Página
     </a>
@@ -432,6 +391,18 @@ input[type="file"] { display:none; }
   </div>
 </div>
 
+<!-- ══════════════════════════
+     AVISO INATIVIDADE (10 MIN)
+══════════════════════════ -->
+<div class="inatividade-overlay" id="inatiividadeOverlay">
+  <div class="inatividade-card">
+    <div class="ico">⏰</div>
+    <h3>Sessão Inativa</h3>
+    <p>Esteve ausente por 10 minutos. A sua sessão será encerrada em:</p>
+    <div class="countdown" id="countdownSeg">30</div>
+    <button class="btn-continuar" onclick="continuarSessao()">Continuar Sessão</button>
+  </div>
+</div>
 
 <!-- ══════════════════════════
      TOPO FIXO
@@ -476,15 +447,14 @@ input[type="file"] { display:none; }
     <i class="fa-solid fa-chevron-right menu-arrow"></i>
   </div>
 
-  <div class="menu-row" onclick="abrirJogos()" style="border-color:rgba(139,92,246,.35);background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(79,70,229,.05));">
-    <div class="menu-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 0 14px rgba(139,92,246,.35);">
-      <i class="fa-solid fa-gamepad"></i>
-    </div>
+  <!-- TERMOS E CONDIÇÕES (novo botão) -->
+  <div class="menu-row" onclick="abrirTermos()" style="border-color:rgba(234,88,12,.3);background:linear-gradient(135deg,rgba(234,88,12,.06),rgba(139,92,246,.04));">
+    <div class="menu-icon laranja"><i class="fa-solid fa-file-contract"></i></div>
     <div class="menu-text">
-      <h3 style="color:#a78bfa;">Jogos</h3>
-      <p>Joga, aposta e ganha prémios</p>
+      <h3 style="color:#fb923c;">Termos e Condições</h3>
+      <p>Regras, leis e política da plataforma</p>
     </div>
-    <span style="background:linear-gradient(90deg,#8B5CF6,#4F46E5);color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:.5px;">NOVO</span>
+    <i class="fa-solid fa-chevron-right menu-arrow"></i>
   </div>
 
   <button class="btn-sair" onclick="pedirLogout()">
@@ -504,10 +474,7 @@ input[type="file"] { display:none; }
     </button>
     <h2>Informações Pessoais</h2>
   </div>
-
   <div class="sub-corpo">
-
-    <!-- FOTO EDITÁVEL -->
     <div class="foto-edit-area">
       <div class="foto-grande" id="subAvatar">
         <i class="fa-solid fa-user"></i>
@@ -520,8 +487,6 @@ input[type="file"] { display:none; }
         Guardar foto
       </button>
     </div>
-
-    <!-- CAMPOS SOMENTE LEITURA -->
     <div class="campo">
       <label>Nome completo</label>
       <p id="infoNome">—</p>
@@ -530,7 +495,6 @@ input[type="file"] { display:none; }
       <label>Número de telefone</label>
       <p id="infoTelefone">—</p>
     </div>
-
   </div>
 </div>
 
@@ -544,125 +508,274 @@ input[type="file"] { display:none; }
     </button>
     <h2>Sobre Nós</h2>
   </div>
-
-  <!-- LOGO / VERSÃO -->
   <div class="sobre-logo">
     <div class="ico">📈</div>
     <h1>INVEST PRO</h1>
     <p class="versao">Versão 1.0.0</p>
   </div>
-
-  <!-- APRESENTAÇÃO -->
   <div class="sobre-card">
     <h3><i class="fa-solid fa-building"></i> Apresentação da Empresa</h3>
-    <p>
-      A Invest Pro é uma plataforma de investimento digital angolana, criada para democratizar o acesso a oportunidades financeiras.
-      Combinamos tecnologia moderna com um modelo de rendimento transparente, permitindo que qualquer pessoa — independentemente do nível de experiência — invista com segurança e acompanhe os seus ganhos em tempo real.
-      Desde a nossa criação, temos vindo a crescer de forma sólida, construindo a confiança dos nossos utilizadores através de resultados consistentes e de uma experiência simples e intuitiva.
-    </p>
+    <p>A Invest Pro é uma plataforma de investimento digital angolana, criada para democratizar o acesso a oportunidades financeiras. Combinamos tecnologia moderna com um modelo de rendimento transparente, permitindo que qualquer pessoa invista com segurança e acompanhe os seus ganhos em tempo real.</p>
   </div>
-
-  <!-- MISSÃO -->
   <div class="sobre-card">
     <h3><i class="fa-solid fa-bullseye"></i> A Nossa Missão</h3>
-    <p>
-      Tornar o investimento acessível, seguro e rentável para todos os angolanos.
-      Acreditamos que o crescimento financeiro é um direito de todos, e estamos aqui para tornar esse caminho mais simples e transparente.
-    </p>
+    <p>Tornar o investimento acessível, seguro e rentável para todos os angolanos. Acreditamos que o crescimento financeiro é um direito de todos, e estamos aqui para tornar esse caminho mais simples e transparente.</p>
   </div>
-
-  <!-- HORÁRIO -->
   <div class="sobre-card">
     <h3><i class="fa-solid fa-clock"></i> Horário de Atendimento</h3>
-    <div class="horario-row">
-      <span class="dia">Segunda a Sexta</span>
-      <span class="hora">08:00 – 18:00</span>
-    </div>
-    <div class="horario-row">
-      <span class="dia">Sábado</span>
-      <span class="hora">08:00 – 14:00</span>
-    </div>
-    <div class="horario-row">
-      <span class="dia">Domingo</span>
-      <span class="hora">09:00 – 13:00</span>
-    </div>
+    <div class="horario-row"><span class="dia">Segunda a Sexta</span><span class="hora">08:00 – 18:00</span></div>
+    <div class="horario-row"><span class="dia">Sábado</span><span class="hora">08:00 – 14:00</span></div>
+    <div class="horario-row"><span class="dia">Domingo</span><span class="hora">09:00 – 13:00</span></div>
   </div>
-
   <div style="height:30px"></div>
 </div>
 
 <!-- ══════════════════════════
-     SUBPÁGINA — JOGOS
+     SUBPÁGINA — TERMOS E CONDIÇÕES
 ══════════════════════════ -->
-<div class="subpagina-overlay" id="subJogos">
+<div class="subpagina-overlay" id="subTermos">
   <div class="sub-header">
-    <button class="btn-voltar" onclick="fecharSub('subJogos')">
+    <button class="btn-voltar" onclick="fecharSub('subTermos')">
       <i class="fa-solid fa-arrow-left"></i>
     </button>
-    <h2>🎮 Jogos</h2>
+    <h2>Termos e Condições</h2>
   </div>
 
   <!-- HERO -->
-  <div class="jogos-hero">
-    <div class="badge-novo">✨ Novidade na plataforma</div>
-    <h1>Joga & Ganha<br>Dinheiro Real</h1>
-    <p>Apostas desportivas e jogos de azar com ganhos reais. Divirta-se e lucre!</p>
-    <div class="jogos-stats">
-      <div class="st">
-        <div class="st-val">2</div>
-        <div class="st-lbl">Jogos</div>
-      </div>
-      <div class="st" style="border-left:1px solid #1e1e2e;border-right:1px solid #1e1e2e;padding:0 24px;">
-        <div class="st-val">24/7</div>
-        <div class="st-lbl">Disponível</div>
-      </div>
-      <div class="st">
-        <div class="st-val">100%</div>
-        <div class="st-lbl">Real</div>
-      </div>
+  <div class="termos-hero">
+    <div class="t-ico">📋</div>
+    <h1>Termos & Condições</h1>
+    <p>Invest Pro — Plataforma de Investimento Digital de Angola</p>
+    <span class="versao-termos">Versão 1.0 · Junho 2025</span>
+  </div>
+
+  <!-- 1. ACEITAÇÃO -->
+  <div class="termos-secao">
+    <div class="termos-secao-titulo">
+      <div class="t-badge">1</div>
+      Aceitação dos Termos
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Ao aceder e utilizar a plataforma <b>Invest Pro</b>, o utilizador declara ter lido, compreendido e aceite integralmente os presentes Termos e Condições.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>O acesso à plataforma é permitido apenas a pessoas com <b>idade igual ou superior a 18 anos</b>. Menores de idade estão expressamente proibidos de utilizar os serviços.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>A Invest Pro reserva-se o direito de atualizar estes termos a qualquer momento. A continuação do uso da plataforma após alterações constitui aceitação das novas condições.</p>
     </div>
   </div>
 
-  <!-- GRID DE JOGOS -->
-  <div class="jogos-grid">
-
-    <!-- FUTEBOL -->
-    <a href="futebol.html" class="jogo-card">
-      <span class="hot-badge">🔥 HOT</span>
-      <div class="jogo-card-img-placeholder" style="background:linear-gradient(135deg,#064e3b,#065f46);">
-        <span style="font-size:52px;">⚽</span>
-        <span style="font-size:11px;color:#6ee7b7;font-weight:700;letter-spacing:.5px;">LIGA ONLINE</span>
-      </div>
-      <div class="jogo-card-info">
-        <h3>Futebol</h3>
-        <p>Apostas em partidas ao vivo com odds reais</p>
-      </div>
-    </a>
-
-    <!-- DADOS -->
-    <a href="dados.html" class="jogo-card">
-      <span class="new-badge">🎲 NOVO</span>
-      <div class="jogo-card-img-placeholder" style="background:linear-gradient(135deg,#3b0764,#4c1d95);">
-        <span style="font-size:52px;">🎲</span>
-        <span style="font-size:11px;color:#c4b5fd;font-weight:700;letter-spacing:.5px;">DADOS BET</span>
-      </div>
-      <div class="jogo-card-info">
-        <h3>Dados</h3>
-        <p>Lança os dados e multiplica os ganhos</p>
-      </div>
-    </a>
-
+  <!-- 2. REGISTO E CONTA -->
+  <div class="termos-secao">
+    <div class="termos-secao-titulo">
+      <div class="t-badge">2</div>
+      Registo e Conta do Utilizador
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Cada utilizador pode criar apenas <b>uma conta pessoal e intransmissível</b>. A partilha de contas entre utilizadores é proibida.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>O utilizador é <b>totalmente responsável</b> pela confidencialidade das suas credenciais de acesso (número de telefone e palavra-passe).</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Em caso de suspeita de acesso não autorizado, o utilizador deve contactar o suporte imediatamente.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>A Invest Pro pode suspender ou encerrar contas que violem estes termos, sem aviso prévio e sem direito a reembolso dos saldos não levantados em casos de fraude comprovada.</p>
+    </div>
   </div>
 
-  <!-- AVISO -->
-  <div class="jogos-aviso">
-    <div class="av-ico">💡</div>
+  <!-- 3. INVESTIMENTOS -->
+  <div class="termos-secao">
+    <div class="termos-secao-titulo">
+      <div class="t-badge">3</div>
+      Regras de Investimento
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Os investimentos são realizados com o <b>saldo de investimento</b> disponível na carteira do utilizador, que deve ser carregado previamente.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Cada plano de investimento tem um prazo definido. Os <b>ganhos diários são creditados automaticamente</b> a cada 24 horas no saldo disponível.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Após o término do prazo do plano, o investimento é automaticamente encerrado e o utilizador <b>deixa de receber ganhos</b> sobre o valor investido.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Os planos VIP têm de ser <b>desbloqueados por ordem crescente</b>. Não é possível aceder a um nível VIP superior sem ter desbloqueado o anterior.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>O valor de investimento <b>não é reembolsável</b> após a realização do investimento. Não há cancelamentos parciais ou totais de planos ativos.</p>
+    </div>
+  </div>
+
+  <!-- 4. SAQUES E DEPÓSITOS -->
+  <div class="termos-secao">
+    <div class="termos-secao-titulo">
+      <div class="t-badge">4</div>
+      Depósitos e Levantamentos
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Os depósitos são processados através dos métodos de pagamento disponíveis na plataforma. O valor é creditado após <b>confirmação do pagamento</b> pela equipa.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Os levantamentos são realizados apenas do <b>saldo disponível</b>. O saldo de investimento não pode ser levantado diretamente.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Os pedidos de levantamento são processados em <b>24 a 72 horas úteis</b>. Em casos de volume elevado, o prazo pode ser superior.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>A plataforma reserva-se o direito de solicitar documentos de verificação de identidade antes de autorizar levantamentos de valores elevados.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Transações suspeitas de lavagem de dinheiro ou atividade fraudulenta serão <b>bloqueadas e reportadas às autoridades competentes</b>.</p>
+    </div>
+  </div>
+
+  <!-- 5. JOGOS E APOSTAS -->
+  <div class="termos-secao">
+    <div class="termos-secao-titulo">
+      <div class="t-badge">5</div>
+      Jogos e Apostas
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Os jogos disponíveis na plataforma (Futebol e Dados) são de natureza <b>aleatória e sujeitos a risco de perda total</b> do valor apostado.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>As apostas são realizadas com o <b>saldo de investimento</b>. Os ganhos são creditados diretamente no <b>saldo disponível</b>.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>É <b>estritamente proibido</b> o uso de sistemas automatizados, bots ou qualquer mecanismo artificial para manipular os resultados dos jogos.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>A plataforma não garante quaisquer ganhos nos jogos de aposta. O utilizador joga por sua <b>própria responsabilidade e risco</b>.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Apostas suspeitas de conluio, manipulação ou fraude serão <b>anuladas sem direito a reembolso</b>.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Promovemos o <b>jogo responsável</b>. Se sentir que o jogo está a afetar negativamente a sua vida, contacte linhas de apoio especializadas.</p>
+    </div>
+  </div>
+
+  <!-- 6. COMPORTAMENTO PROIBIDO -->
+  <div class="termos-secao">
+    <div class="termos-secao-titulo">
+      <div class="t-badge">6</div>
+      Condutas Proibidas
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>É proibido criar <b>múltiplas contas</b> para o mesmo utilizador ou beneficiar de bónus de forma fraudulenta.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Qualquer tentativa de <b>hackear, aceder indevidamente</b> ou comprometer a segurança da plataforma será tratada como crime informático.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>É proibida a <b>difamação pública</b> da plataforma, dos seus colaboradores ou de outros utilizadores nas redes sociais ou outros meios.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Qualquer forma de <b>burla, phishing ou engenharia social</b> para obter dados de outros utilizadores é crime punível por lei angolana.</p>
+    </div>
+  </div>
+
+  <!-- 7. RESPONSABILIDADE -->
+  <div class="termos-secao">
+    <div class="termos-secao-titulo">
+      <div class="t-badge">7</div>
+      Limitação de Responsabilidade
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>A Invest Pro não garante rendimentos fixos ou isentos de risco. Os ganhos apresentados são <b>estimativas baseadas nos planos disponíveis</b>.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>A plataforma não se responsabiliza por <b>perdas decorrentes de falhas técnicas, ataques externos ou casos de força maior</b>.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>O utilizador investe e joga com plena consciência dos riscos associados. A decisão de investir é sempre <b>da exclusiva responsabilidade do utilizador</b>.</p>
+    </div>
+  </div>
+
+  <!-- 8. PRIVACIDADE -->
+  <div class="termos-secao">
+    <div class="termos-secao-titulo">
+      <div class="t-badge">8</div>
+      Privacidade e Dados Pessoais
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Os dados pessoais recolhidos (nome, telefone, foto de perfil) são utilizados <b>exclusivamente</b> para a prestação dos serviços da plataforma.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>A Invest Pro não vende, aluga ou partilha dados pessoais dos utilizadores com terceiros, exceto quando <b>obrigada por lei ou autoridade judicial</b>.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>O utilizador tem o direito de solicitar a <b>eliminação da sua conta e dados</b> contactando o suporte, desde que não existam obrigações legais pendentes.</p>
+    </div>
+  </div>
+
+  <!-- 9. LEI APLICÁVEL -->
+  <div class="termos-secao">
+    <div class="termos-secao-titulo">
+      <div class="t-badge">9</div>
+      Lei Aplicável e Jurisdição
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Estes termos são regidos pela <b>lei angolana</b>, nomeadamente pela Lei das Telecomunicações, Lei do Comércio Electrónico e Lei de Jogos em vigor na República de Angola.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Quaisquer litígios serão submetidos à jurisdição dos <b>tribunais da República de Angola</b>, salvo acordo escrito em contrário entre as partes.</p>
+    </div>
+    <div class="termos-item">
+      <div class="dot"></div>
+      <p>Para reclamações ou esclarecimentos, o utilizador pode contactar o suporte da plataforma através dos canais oficiais disponíveis.</p>
+    </div>
+  </div>
+
+  <!-- AVISO IMPORTANTE -->
+  <div class="termos-aviso">
+    <div class="av-ico">⚠️</div>
     <p>
-      As apostas saem do <strong>saldo investimento</strong>.<br>
-      Os ganhos vão direto para o <strong>saldo disponível</strong>.
+      <b>AVISO IMPORTANTE:</b> Os investimentos e jogos disponíveis nesta plataforma envolvem risco financeiro. Invista apenas o que pode perder. A Invest Pro não é uma instituição bancária regulada pelo Banco Nacional de Angola (BNA). Use a plataforma de forma responsável.
     </p>
   </div>
 
+  <button class="termos-ok-btn" onclick="fecharSub('subTermos')">
+    <i class="fa-solid fa-check"></i> Li e Aceito os Termos
+  </button>
 </div>
 
 <!-- ══════════════════════════
@@ -703,37 +816,27 @@ const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 /* ══════════════════════════
    ESTADO
 ══════════════════════════ */
-let usuario    = null;
-let novaFotoB64 = null; // base64 da nova foto escolhida
+let usuario      = null;
+let novaFotoB64  = null;
 
 /* ══════════════════════════
    RENDER DE AVATAR
-   Aceita b64 string ou URL
 ══════════════════════════ */
 function renderAvatar(elId, src) {
   const el = document.getElementById(elId);
   if (!el) return;
-  if (src) {
-    el.innerHTML = `<img src="${src}" alt="foto">`;
-  } else {
-    el.innerHTML = `<i class="fa-solid fa-user"></i>`;
-  }
+  el.innerHTML = src ? `<img src="${src}" alt="foto">` : `<i class="fa-solid fa-user"></i>`;
 }
 
 /* ══════════════════════════
    PREENCHER UI
 ══════════════════════════ */
 function preencherUI(u) {
-  // Topo fixo
-  document.getElementById("topoNome").innerText     = u.nome      || "Utilizador";
-  document.getElementById("topoTelefone").innerText = u.telefone  || "—";
-  document.getElementById("topoVip").innerText      = u.vip       || "VIP Grátis";
-
-  // Subpágina info
-  document.getElementById("infoNome").innerText     = u.nome      || "—";
-  document.getElementById("infoTelefone").innerText = u.telefone  || "—";
-
-  // Fotos
+  document.getElementById("topoNome").innerText     = u.nome     || "Utilizador";
+  document.getElementById("topoTelefone").innerText = u.telefone || "—";
+  document.getElementById("topoVip").innerText      = u.vip      || "VIP Grátis";
+  document.getElementById("infoNome").innerText     = u.nome     || "—";
+  document.getElementById("infoTelefone").innerText = u.telefone || "—";
   const foto = u.foto_perfil || null;
   renderAvatar("topoAvatar", foto);
   renderAvatar("subAvatar",  foto);
@@ -757,7 +860,6 @@ async function carregarUsuario() {
   document.getElementById("loading").style.display = "none";
 
   if (error || !data) {
-    // usa cache se Supabase falhar
     usuario = userCache;
     preencherUI(userCache);
     return;
@@ -771,22 +873,15 @@ async function carregarUsuario() {
 /* ══════════════════════════
    SUBPÁGINAS
 ══════════════════════════ */
-function abrirInfoPessoal() {
-  document.getElementById("subInfoPessoal").classList.add("show");
-}
-function abrirSobreNos() {
-  document.getElementById("subSobreNos").classList.add("show");
-}
-function abrirJogos() {
-  document.getElementById("subJogos").classList.add("show");
-}
+function abrirInfoPessoal() { document.getElementById("subInfoPessoal").classList.add("show"); }
+function abrirSobreNos()    { document.getElementById("subSobreNos").classList.add("show"); }
+function abrirTermos()      { document.getElementById("subTermos").classList.add("show"); }
+
 function fecharSub(id) {
   document.getElementById(id).classList.remove("show");
-  // Limpa preview se fechar sem salvar
   if (id === "subInfoPessoal") {
     novaFotoB64 = null;
     document.getElementById("btnSalvarFoto").classList.remove("show");
-    // Restaura avatar original
     renderAvatar("subAvatar", usuario?.foto_perfil || null);
   }
 }
@@ -797,15 +892,10 @@ function fecharSub(id) {
 function previewFoto(event) {
   const file = event.target.files[0];
   if (!file) return;
-
-  // Limitar tamanho (máx 2 MB)
-  if (file.size > 2 * 1024 * 1024) {
-    alert("A foto não pode ter mais de 2 MB."); return;
-  }
-
+  if (file.size > 2 * 1024 * 1024) { alert("A foto não pode ter mais de 2 MB."); return; }
   const reader = new FileReader();
   reader.onload = function(e) {
-    novaFotoB64 = e.target.result; // base64
+    novaFotoB64 = e.target.result;
     renderAvatar("subAvatar", novaFotoB64);
     document.getElementById("btnSalvarFoto").classList.add("show");
   };
@@ -814,52 +904,28 @@ function previewFoto(event) {
 
 /* ══════════════════════════
    FOTO — SALVAR
-   Guarda base64 no campo foto_perfil da tabela usuarios
 ══════════════════════════ */
 async function salvarFoto() {
   if (!novaFotoB64 || !usuario) return;
-
   const btn = document.getElementById("btnSalvarFoto");
-  btn.innerText = "A guardar...";
-  btn.disabled  = true;
-
-  const { error } = await db
-    .from("usuarios")
-    .update({ foto_perfil: novaFotoB64 })
-    .eq("id", usuario.id);
-
-  btn.innerText = "Guardar foto";
-  btn.disabled  = false;
-
-  if (error) {
-    alert("Não foi possível guardar a foto. Tenta novamente."); return;
-  }
-
-  // Actualiza cache e estado
+  btn.innerText = "A guardar..."; btn.disabled = true;
+  const { error } = await db.from("usuarios").update({ foto_perfil: novaFotoB64 }).eq("id", usuario.id);
+  btn.innerText = "Guardar foto"; btn.disabled = false;
+  if (error) { alert("Não foi possível guardar a foto. Tenta novamente."); return; }
   usuario.foto_perfil = novaFotoB64;
   localStorage.setItem("usuario", JSON.stringify(usuario));
-
-  // Actualiza topo principal também
   renderAvatar("topoAvatar", novaFotoB64);
-
   document.getElementById("btnSalvarFoto").classList.remove("show");
   novaFotoB64 = null;
-
-  // Reset input para permitir re-escolha
   document.getElementById("inputFoto").value = "";
 }
 
 /* ══════════════════════════
    LOGOUT
 ══════════════════════════ */
-function pedirLogout() {
-  document.getElementById("alertaOverlay").classList.add("show");
-}
-function fecharAlerta() {
-  document.getElementById("alertaOverlay").classList.remove("show");
-}
+function pedirLogout() { document.getElementById("alertaOverlay").classList.add("show"); }
+function fecharAlerta() { document.getElementById("alertaOverlay").classList.remove("show"); }
 function confirmarLogout() {
-  // Limpa tudo
   localStorage.removeItem("usuario");
   localStorage.removeItem("session");
   sessionStorage.clear();
@@ -869,35 +935,80 @@ function confirmarLogout() {
 /* ══════════════════════════
    FACEBOOK POPUP
 ══════════════════════════ */
-function abrirFb() {
-  document.getElementById("fbOverlay").classList.add("show");
+function abrirFb() { document.getElementById("fbOverlay").classList.add("show"); }
+function fecharFb() { document.getElementById("fbOverlay").classList.remove("show"); }
+document.getElementById("fbOverlay").addEventListener("click", function(e){ if(e.target===this) fecharFb(); });
+document.addEventListener("keydown", function(e){ if(e.key==="Escape") fecharFb(); });
+
+/* ══════════════════════════
+   SISTEMA DE INATIVIDADE — 10 MINUTOS
+   Após 10 min sem interação, mostra aviso com contagem de 30 seg.
+   Se não reagir, faz logout. Se clicar "Continuar", reinicia o timer.
+
+   SUPABASE — Para guardar o tempo de atividade (pode usar a tabela de sessões):
+   Colunas necessárias na tabela "usuarios" ou numa tabela "sessoes":
+     - ultima_atividade (timestamp with time zone)
+   Coluna SQL sugerida para adicionar ao Supabase:
+     ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS ultima_atividade timestamptz DEFAULT now();
+══════════════════════════ */
+const TIMEOUT_MS      = 10 * 60 * 1000; // 10 minutos
+const COUNTDOWN_SECS  = 30;             // contagem regressiva antes de deslogar
+
+let inativTimerPrincipal = null;
+let inativCountdownTimer = null;
+let inativContagem       = COUNTDOWN_SECS;
+
+function reiniciarTimerInatividade() {
+  clearTimeout(inativTimerPrincipal);
+  clearInterval(inativCountdownTimer);
+  // Esconde aviso se estiver visível
+  document.getElementById("inatiividadeOverlay").classList.remove("show");
+
+  // Guarda hora de atividade no Supabase
+  if (usuario) {
+    db.from("usuarios").update({ ultima_atividade: new Date().toISOString() }).eq("id", usuario.id).then(() => {});
+  }
+
+  inativTimerPrincipal = setTimeout(mostrarAvisoInatividade, TIMEOUT_MS);
 }
-function fecharFb() {
-  document.getElementById("fbOverlay").classList.remove("show");
+
+function mostrarAvisoInatividade() {
+  inativContagem = COUNTDOWN_SECS;
+  document.getElementById("countdownSeg").innerText = inativContagem;
+  document.getElementById("inatiividadeOverlay").classList.add("show");
+
+  inativCountdownTimer = setInterval(() => {
+    inativContagem--;
+    document.getElementById("countdownSeg").innerText = inativContagem;
+    if (inativContagem <= 0) {
+      clearInterval(inativCountdownTimer);
+      // Desloga
+      localStorage.removeItem("usuario");
+      localStorage.removeItem("session");
+      sessionStorage.clear();
+      window.location.replace("login.html");
+    }
+  }, 1000);
 }
-// Fecha ao clicar fora do card
-document.getElementById("fbOverlay").addEventListener("click", function(e){
-  if (e.target === this) fecharFb();
-});
-// Fecha com tecla ESC
-document.addEventListener("keydown", function(e){
-  if (e.key === "Escape") fecharFb();
+
+window.continuarSessao = function() {
+  reiniciarTimerInatividade();
+};
+
+// Eventos que reiniciam o timer
+["mousemove","mousedown","keydown","touchstart","touchmove","scroll","click"].forEach(ev => {
+  document.addEventListener(ev, reiniciarTimerInatividade, { passive: true });
 });
 
 /* ══════════════════════════
    GUARDA DE NAVEGAÇÃO
-   Impede voltar para login/cadastro com o botão "voltar"
 ══════════════════════════ */
 (function bloquearVoltarParaLogin(){
-  // Substitui a entrada actual para não permitir voltar à anterior (login)
   history.replaceState({ app:"perfil" }, "", location.href);
-  // Empurra mais uma entrada como "armadilha"
   history.pushState({ app:"perfil" }, "", location.href);
   window.addEventListener("popstate", function(){
-    // Se o utilizador estiver logado, redirecciona para o feed em vez de login
     const cache = localStorage.getItem("usuario");
     if (cache && cache !== "null" && cache !== "undefined") {
-      // Reinjecta entrada para manter armadilha
       history.pushState({ app:"perfil" }, "", location.href);
       window.location.replace("feed.html");
     } else {
@@ -910,11 +1021,7 @@ document.addEventListener("keydown", function(e){
    INICIAR
 ══════════════════════════ */
 carregarUsuario();
-
-// Se veio de um jogo, abre a subpágina Jogos automaticamente
-if(new URLSearchParams(location.search).get("jogos") === "1"){
-  setTimeout(()=>{ document.getElementById("subJogos").classList.add("show"); }, 350);
-}
+reiniciarTimerInatividade(); // arranca o timer de inatividade
 
 // Mostra o popup do Facebook sempre que abrir a página de perfil
 window.addEventListener("load", function(){
