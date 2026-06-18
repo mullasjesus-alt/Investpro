@@ -1,4 +1,4 @@
-here<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt">
 <head>
 <meta charset="UTF-8"/>
@@ -15,7 +15,7 @@ here<!DOCTYPE html>
   --text:#e8e8f4; --muted:#4a4a6a; --muted2:#6b6b8a;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;overflow:hidden;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;}
 
 /* LOADING */
 .loading-overlay{
@@ -27,14 +27,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-overlay p{color:var(--muted2);font-size:14px;}
 
-/* LAYOUT FIXO — toda a tela */
-body{display:flex;flex-direction:column;height:100vh;}
+body{display:flex;flex-direction:column;min-height:100vh;}
 
 /* HEADER */
 header{
   display:flex;align-items:center;gap:10px;padding:10px 14px;
   background:linear-gradient(135deg,#130d26,#0e0c1e);
   border-bottom:1px solid var(--border2);flex-shrink:0;
+  position:sticky;top:0;z-index:20;
 }
 .back{
   text-decoration:none;color:var(--text);
@@ -51,73 +51,59 @@ header{
 .hs-val.disp{color:var(--green);}
 .hs-val.inv{color:#a78bfa;}
 
-/* ÁREA PRINCIPAL — flex 1 */
-.main-area{
-  flex:1; display:flex; flex-direction:column;
-  overflow:hidden; min-height:0;
-}
+/* MAIN */
+.main-area{flex:1;display:flex;flex-direction:column;max-width:780px;margin:0 auto;width:100%;}
 
-/* ARENA DADOS — fixa no topo da main */
+/* ARENA */
 .arena-wrap{
-  flex-shrink:0;
-  background:var(--s2);
-  border-bottom:1px solid var(--border2);
-  padding:10px 14px;
+  background:var(--s2);border-bottom:1px solid var(--border2);
+  padding:14px;
 }
-
-/* DADOS */
 .dice-arena{
   display:grid;grid-template-columns:1fr auto 1fr;
-  gap:8px;align-items:center;margin-bottom:8px;
+  gap:10px;align-items:center;margin-bottom:10px;
 }
 .dice-side{text-align:center;}
-.dice-side h4{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted2);margin-bottom:8px;font-weight:600;}
-.dice-wrap{display:flex;gap:8px;justify-content:center;margin-bottom:8px;}
+.dice-side h4{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted2);margin-bottom:10px;font-weight:600;}
+.dice-wrap{display:flex;gap:10px;justify-content:center;margin-bottom:8px;}
 .die{
-  width:52px;height:52px;border-radius:12px;
-  background:#fff;color:#111;
-  display:grid;place-items:center;
-  font-size:26px;font-weight:900;
-  border:3px solid #e5e7eb;
-  box-shadow:0 3px 12px rgba(0,0,0,.4);
-  user-select:none;
+  width:60px;height:60px;border-radius:14px;
+  background:#fff;color:#111;display:grid;place-items:center;
+  font-size:30px;font-weight:900;border:3px solid #e5e7eb;
+  box-shadow:0 4px 14px rgba(0,0,0,.45);user-select:none;
 }
 .die.blue{border-color:#38bdf8;}
 .die.red{border-color:#ff5252;}
-.die.rolling{animation:dieRoll .4s linear infinite;}
+.die.rolling{animation:dieRoll .35s linear infinite;}
 @keyframes dieRoll{
-  0%{transform:rotateY(0deg) scale(1);}
-  25%{transform:rotateY(90deg) scale(1.05);}
-  50%{transform:rotateY(180deg) scale(1);}
-  75%{transform:rotateY(270deg) scale(1.05);}
-  100%{transform:rotateY(360deg) scale(1);}
+  0%{transform:rotateY(0deg) rotateX(0deg) scale(1);}
+  25%{transform:rotateY(90deg) rotateX(45deg) scale(1.06);}
+  50%{transform:rotateY(180deg) rotateX(90deg) scale(1);}
+  75%{transform:rotateY(270deg) rotateX(135deg) scale(1.06);}
+  100%{transform:rotateY(360deg) rotateX(180deg) scale(1);}
 }
-.dice-sum{font-size:28px;font-weight:900;line-height:1;}
+.dice-sum{font-size:30px;font-weight:900;line-height:1;}
 .dice-sum.blue{color:#38bdf8;}
 .dice-sum.red{color:#ff5252;}
 
-.arena-center{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.arena-center{display:flex;flex-direction:column;align-items:center;gap:8px;}
 .vs-badge{
-  width:32px;height:32px;border-radius:50%;
+  width:36px;height:36px;border-radius:50%;
   background:var(--s4);border:1px solid var(--border2);
   display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:12px;color:var(--muted2);
+  font-weight:800;font-size:13px;color:var(--muted2);
 }
 .result-box{
   background:var(--s1);border:1px solid var(--border2);
-  border-radius:10px;padding:8px 12px;
-  text-align:center;font-weight:700;font-size:12px;
-  color:var(--muted2);min-width:90px;transition:all .3s;
-  line-height:1.4;
+  border-radius:10px;padding:9px 12px;text-align:center;
+  font-weight:700;font-size:12px;color:var(--muted2);
+  min-width:100px;transition:all .3s;line-height:1.4;
 }
 .result-box.win{border-color:rgba(0,230,118,.4);color:var(--green);background:rgba(0,230,118,.06);}
 .result-box.lose{border-color:rgba(255,82,82,.4);color:var(--red);background:rgba(255,82,82,.06);}
 
-/* BARRA DE OUTROS JOGADORES */
-.live-bar{
-  display:flex;gap:6px;overflow-x:auto;padding:4px 0;
-  scrollbar-width:none;
-}
+/* LIVE BAR */
+.live-bar{display:flex;gap:6px;overflow-x:auto;padding:4px 0;scrollbar-width:none;}
 .live-bar::-webkit-scrollbar{display:none;}
 .live-chip{
   flex-shrink:0;background:var(--s3);border:1px solid var(--border);
@@ -129,42 +115,40 @@ header{
 .live-chip .dot.r{background:var(--red);}
 .live-chip .dot.y{background:var(--gold);}
 
-/* RODADA */
+/* RODADA / COUNTDOWN */
 .round-info{
   display:flex;justify-content:space-between;align-items:center;
-  font-size:12px;color:var(--muted2);margin-top:6px;
+  font-size:12px;color:var(--muted2);margin-top:10px;flex-wrap:wrap;gap:8px;
 }
 .round-info strong{color:var(--gold);}
-.round-info #arenaStatus{color:var(--muted2);font-size:11px;}
-
-/* ÁREA APOSTA — scroll se necessário */
-.bet-area{
-  flex:1;overflow-y:auto;padding:12px 14px;
-  display:flex;flex-direction:column;gap:10px;
-  min-height:0;
+.cdwn{
+  background:var(--s3);border:1px solid var(--border2);border-radius:10px;
+  padding:5px 12px;font-size:14px;font-weight:800;color:#a3c9ff;
+  font-variant-numeric:tabular-nums;
 }
-.bet-area::-webkit-scrollbar{width:3px;}
-.bet-area::-webkit-scrollbar-thumb{background:rgba(139,92,246,.2);}
+.cdwn.rolling{color:var(--gold);}
 
-/* TABS */
-.bet-tabs{display:flex;gap:8px;flex-shrink:0;}
+/* BET AREA */
+.bet-area{flex:1;padding:14px;display:flex;flex-direction:column;gap:12px;}
+.bet-tabs{display:flex;gap:8px;}
 .btab{
-  flex:1;padding:8px;border-radius:10px;border:1px solid var(--border);
+  flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);
   background:var(--s3);color:var(--muted2);font-size:13px;font-weight:600;
   cursor:pointer;text-align:center;transition:all .15s;
 }
 .btab.on{background:rgba(139,92,246,.15);border-color:var(--p1);color:#fff;}
 
-/* SIDES */
+.section-lbl{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:8px;}
+
 .sides-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .side-chip{
   background:rgba(139,92,246,.07);border:1px solid var(--border);
-  border-radius:12px;padding:10px 4px;text-align:center;
+  border-radius:12px;padding:12px 4px;text-align:center;
   cursor:pointer;user-select:none;transition:all .15s;
 }
-.side-chip .sc-ico{font-size:20px;margin-bottom:4px;display:block;}
-.side-chip .sc-lbl{font-size:12px;font-weight:700;color:var(--text);display:block;}
-.side-chip .sc-odd{font-size:10px;color:var(--muted2);display:block;margin-top:1px;}
+.side-chip .sc-ico{font-size:24px;margin-bottom:5px;display:block;}
+.side-chip .sc-lbl{font-size:13px;font-weight:700;color:var(--text);display:block;}
+.side-chip .sc-odd{font-size:10px;color:var(--muted2);display:block;margin-top:2px;}
 .side-chip.active-jogador{background:rgba(56,189,248,.12);border-color:var(--blue);}
 .side-chip.active-jogador .sc-lbl{color:var(--blue);}
 .side-chip.active-banca{background:rgba(255,82,82,.12);border-color:var(--red);}
@@ -172,21 +156,18 @@ header{
 .side-chip.active-empate{background:rgba(251,191,36,.12);border-color:var(--gold);}
 .side-chip.active-empate .sc-lbl{color:var(--gold);}
 
-/* INPUT */
 .stake-wrap{
   background:var(--s1);border:1px solid var(--border2);
   border-radius:12px;display:flex;align-items:center;padding:0 12px;
 }
 .stake-wrap:focus-within{border-color:var(--p1);}
 .stake-wrap input{
-  flex:1;background:transparent;border:none;
-  color:var(--text);font-size:16px;font-weight:700;
-  padding:11px 8px;outline:none;font-family:inherit;
+  flex:1;background:transparent;border:none;color:var(--text);
+  font-size:16px;font-weight:700;padding:12px 8px;outline:none;font-family:inherit;
 }
 .stake-wrap input::placeholder{color:var(--muted);font-weight:400;font-size:14px;}
 .stake-wrap span{color:var(--muted2);font-size:13px;}
 
-/* POT */
 .pot-box{
   background:var(--s3);border:1px solid var(--border);
   border-radius:12px;padding:10px 14px;
@@ -196,7 +177,6 @@ header{
 .pot-row .pl{color:var(--muted2);}
 .pot-row.total .pv{color:var(--green);}
 
-/* BOTÕES */
 .cta{
   width:100%;padding:13px;border-radius:13px;border:none;
   font-weight:800;cursor:pointer;font-size:15px;
@@ -213,6 +193,7 @@ header{
 .bet-msg{font-size:13px;font-weight:600;min-height:16px;text-align:center;}
 .bet-msg.ok{color:var(--green);}
 .bet-msg.err{color:var(--red);}
+.bet-msg.info{color:#a3c9ff;}
 
 /* HISTÓRICO */
 .hist-card{
@@ -230,14 +211,13 @@ header{
 .hist-row span{font-weight:600;color:var(--text);}
 .hist-payout{font-size:13px;font-weight:800;margin-top:6px;}
 
-/* BANNER RESULTADO */
+/* BANNER */
 .result-banner{
   position:fixed;left:50%;transform:translateX(-50%);
   bottom:20px;z-index:200;max-width:92vw;width:340px;
   background:var(--s2);border:1px solid var(--border2);
   border-radius:18px;box-shadow:0 14px 40px rgba(0,0,0,.7);
-  padding:16px 18px;
-  animation:bannerIn .3s cubic-bezier(.34,1.56,.64,1);
+  padding:16px 18px;animation:bannerIn .3s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes bannerIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .banner-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
@@ -253,13 +233,11 @@ header{
 </head>
 <body>
 
-<!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="sp"></div>
   <p>A carregar Dados Bet…</p>
 </div>
 
-<!-- HEADER -->
 <header>
   <a href="perfil.html?jogos=1" class="back"><i class="fa-solid fa-chevron-left"></i> Voltar</a>
   <div>
@@ -278,13 +256,9 @@ header{
   </div>
 </header>
 
-<!-- MAIN AREA -->
 <div class="main-area">
 
-  <!-- ARENA FIXA NO TOPO -->
   <div class="arena-wrap">
-
-    <!-- DADOS -->
     <div class="dice-arena">
       <div class="dice-side">
         <h4>🔵 Jogador</h4>
@@ -296,7 +270,7 @@ header{
       </div>
       <div class="arena-center">
         <div class="vs-badge">VS</div>
-        <div class="result-box" id="resultBox">A jogar…</div>
+        <div class="result-box" id="resultBox">A aguardar…</div>
       </div>
       <div class="dice-side">
         <h4>🔴 Banca</h4>
@@ -308,50 +282,46 @@ header{
       </div>
     </div>
 
-    <!-- OUTROS JOGADORES AO VIVO -->
     <div class="live-bar" id="liveBar"></div>
 
-    <!-- RODADA INFO -->
     <div class="round-info">
       <span>Ronda <strong id="roundLabel">#1</strong></span>
-      <span id="arenaStatus">A decorrer…</span>
+      <span id="arenaStatus">A aguardar apostas…</span>
+      <span class="cdwn" id="countdown">00:30</span>
     </div>
-
   </div>
 
-  <!-- ÁREA APOSTA (scroll) -->
   <div class="bet-area">
-
-    <!-- TABS -->
     <div class="bet-tabs">
       <div class="btab on" id="tabBtnApostar" onclick="showBetTab('apostar')">🎲 Apostar</div>
       <div class="btab" id="tabBtnHistorico" onclick="showBetTab('historico')">📋 Histórico</div>
     </div>
 
-    <!-- TAB APOSTAR -->
-    <div id="tabApostar">
+    <div id="tabApostar" style="display:flex;flex-direction:column;gap:12px;">
 
-      <div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600;">Escolha o Lado</div>
-      <div class="sides-grid">
-        <div class="side-chip" data-side="jogador" onclick="escolherLado('jogador')">
-          <span class="sc-ico">🔵</span>
-          <span class="sc-lbl">Jogador</span>
-          <span class="sc-odd">Paga 1:1</span>
-        </div>
-        <div class="side-chip" data-side="empate" onclick="escolherLado('empate')">
-          <span class="sc-ico">🟡</span>
-          <span class="sc-lbl">Empate</span>
-          <span class="sc-odd">Paga 4:1</span>
-        </div>
-        <div class="side-chip" data-side="banca" onclick="escolherLado('banca')">
-          <span class="sc-ico">🔴</span>
-          <span class="sc-lbl">Banca</span>
-          <span class="sc-odd">Paga 1:1</span>
+      <div>
+        <div class="section-lbl">Escolha o Lado</div>
+        <div class="sides-grid">
+          <div class="side-chip" data-side="jogador" onclick="escolherLado('jogador')">
+            <span class="sc-ico">🔵</span>
+            <span class="sc-lbl">Jogador</span>
+            <span class="sc-odd">Paga 1:1</span>
+          </div>
+          <div class="side-chip" data-side="empate" onclick="escolherLado('empate')">
+            <span class="sc-ico">🟡</span>
+            <span class="sc-lbl">Empate</span>
+            <span class="sc-odd">Paga 4:1</span>
+          </div>
+          <div class="side-chip" data-side="banca" onclick="escolherLado('banca')">
+            <span class="sc-ico">🔴</span>
+            <span class="sc-lbl">Banca</span>
+            <span class="sc-odd">Paga 1:1</span>
+          </div>
         </div>
       </div>
 
       <div>
-        <div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600;margin-top:4px;">Valor da Aposta</div>
+        <div class="section-lbl">Valor da Aposta</div>
         <div class="stake-wrap">
           <input id="stakeInput" type="number" min="500" step="100" placeholder="Mínimo 500 Kz…" oninput="atualizarPot()">
           <span>Kz</span>
@@ -372,13 +342,12 @@ header{
       <div class="warn-txt">
         Mínimo: <strong style="color:var(--text)">500 Kz</strong> ·
         Sai do <strong style="color:#a78bfa">saldo investimento</strong> ·
-        Ganhos → <strong style="color:var(--green)">saldo disponível</strong>
+        Ganhos → <strong style="color:var(--green)">saldo disponível</strong><br>
+        Janela de apostas: <strong style="color:var(--text)">30 segundos</strong>
       </div>
-      <div class="bet-msg" id="betMsg"></div>
-
+      <div class="bet-msg info" id="betMsg">Faça a sua aposta antes do tempo terminar.</div>
     </div>
 
-    <!-- TAB HISTÓRICO -->
     <div id="tabHistorico" class="hidden">
       <div style="font-size:12px;color:var(--muted2);margin-bottom:10px" id="histCount">0 registos</div>
       <div id="histList">
@@ -388,12 +357,10 @@ header{
         </div>
       </div>
     </div>
-
   </div>
 
 </div>
 
-<!-- RESULT BANNER -->
 <div id="resultBanner" class="result-banner hidden">
   <div class="banner-head">
     <strong id="bannerTitle">Resultado</strong>
@@ -403,76 +370,64 @@ header{
 </div>
 
 <script>
-// ========================
-// SUPABASE
-// ========================
+/* SUPABASE */
 const clientDB = window.supabase.createClient(
   "https://tuaclpevpkqvoeggywub.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YWNscGV2cGtxdm9lZ2d5d3ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3Njc2NzEsImV4cCI6MjA5NjM0MzY3MX0.ptGzyNLv0gYyq2DgbXOlBFZgK1VbKdaLAdFwLugom2A"
 );
 
-// ========================
-// ESTADO
-// ========================
-let usuario = null;
+/* CONFIG */
 const PAYOUTS = { jogador:1, banca:1, empate:4 };
 const MIN_BET = 500;
+const BET_WINDOW_MS = 30 * 1000;   // 30s para apostar
+const ROLL_DURATION = 5000;        // 5s de rolagem dos dados
+const POST_RESULT_MS = 4000;       // 4s a mostrar resultado antes da próxima ronda
+
+/* ESTADO */
+let usuario = null;
 let ladoSelecionado = null;
 let apostaAtual = null;
 let emRodada = false;
 let ROUND = 1;
 let historico = [];
 let rollTimers = [];
-let autoTimer = null;
+let countdownTimer = null;
+let windowEndsAt = 0;
 
-// ========================
-// NOMES FALSOS
-// ========================
 const NOMES_FALSOS = [
   "Carlos M.","Ana S.","Pedro L.","Maria F.","João B.",
   "Sofia R.","Miguel A.","Inês C.","David N.","Luisa P.",
   "Tiago V.","Beatriz O.","Ricardo K.","Catarina D.","Bruno T."
 ];
 function nomeAleatorio(){ return NOMES_FALSOS[Math.floor(Math.random()*NOMES_FALSOS.length)]; }
-
-// ========================
-// FORMATAR
-// ========================
 function fmtKz(v){ return Number(v||0).toLocaleString("pt-AO") + " Kz"; }
 
-// ========================
-// UTILIZADOR
-// ========================
+/* UTILIZADOR */
 async function carregarUsuario(){
   const raw = localStorage.getItem("usuario");
   if(!raw||raw==="null"){ window.location.replace("login.html"); return false; }
   let cache;
   try{ cache=JSON.parse(raw); }catch{ window.location.replace("login.html"); return false; }
   if(!cache?.id){ window.location.replace("login.html"); return false; }
-
   const { data, error } = await clientDB.from("usuarios").select("*").eq("id",cache.id).single();
   if(error||!data){ usuario=cache; }
   else { usuario=data; localStorage.setItem("usuario",JSON.stringify(data)); }
   atualizarSaldos();
   return true;
 }
-
 function atualizarSaldos(){
   if(!usuario) return;
   document.getElementById("saldoDispVal").textContent = fmtKz(usuario.saldo_disponivel);
   document.getElementById("saldoInvVal").textContent  = fmtKz(usuario.saldo_investimento);
 }
-
 async function fetchFresh(){
   if(!usuario?.id) return null;
   const { data } = await clientDB.from("usuarios")
     .select("saldo_disponivel,saldo_investimento,lucro").eq("id",usuario.id).single();
   return data||null;
 }
-
 async function debitarInvestimento(valor){
-  const f = await fetchFresh();
-  if(!f) return false;
+  const f = await fetchFresh(); if(!f) return false;
   const atual = Number(f.saldo_investimento||0);
   if(atual<valor) return false;
   const novo = atual-valor;
@@ -483,22 +438,17 @@ async function debitarInvestimento(valor){
   atualizarSaldos();
   return true;
 }
-
 async function creditarDisponivel(valor){
-  const f = await fetchFresh();
-  if(!f) return;
+  const f = await fetchFresh(); if(!f) return;
   const novoD = Number(f.saldo_disponivel||0)+valor;
   const novoL = Number(f.lucro||0)+valor;
   await clientDB.from("usuarios").update({saldo_disponivel:novoD,lucro:novoL}).eq("id",usuario.id);
-  usuario.saldo_disponivel=novoD;
-  usuario.lucro=novoL;
+  usuario.saldo_disponivel=novoD; usuario.lucro=novoL;
   localStorage.setItem("usuario",JSON.stringify(usuario));
   atualizarSaldos();
 }
 
-// ========================
-// TABS
-// ========================
+/* TABS */
 function showBetTab(tab){
   const isA = tab==="apostar";
   document.getElementById("tabApostar").classList.toggle("hidden",!isA);
@@ -507,10 +457,9 @@ function showBetTab(tab){
   document.getElementById("tabBtnHistorico").classList.toggle("on",!isA);
 }
 
-// ========================
-// ESCOLHER LADO
-// ========================
+/* ESCOLHA LADO */
 function escolherLado(lado){
+  if(emRodada) return;
   ladoSelecionado=lado;
   document.querySelectorAll(".side-chip").forEach(c=>{
     c.className="side-chip";
@@ -520,79 +469,90 @@ function escolherLado(lado){
   validarBtn();
 }
 
-// ========================
-// POTENCIAL
-// ========================
+/* POTENCIAL */
 function atualizarPot(){
-  const v=parseFloat(document.getElementById("stakeInput").value)||0;
-  const mult=ladoSelecionado?PAYOUTS[ladoSelecionado]:null;
+  const v = parseFloat(document.getElementById("stakeInput").value)||0;
+  const mult = ladoSelecionado?PAYOUTS[ladoSelecionado]:null;
   if(!v||!mult){
-    document.getElementById("potAposta").textContent=v?fmtKz(v):"—";
-    document.getElementById("potMult").textContent=mult?`×${mult+1}`:"—";
-    document.getElementById("potGanho").textContent="—";
+    document.getElementById("potAposta").textContent = v?fmtKz(v):"—";
+    document.getElementById("potMult").textContent = mult?`×${mult+1}`:"—";
+    document.getElementById("potGanho").textContent = "—";
   } else {
-    document.getElementById("potAposta").textContent=fmtKz(v);
-    document.getElementById("potMult").textContent=mult===4?"×5 (4:1)":"×2 (1:1)";
-    document.getElementById("potGanho").textContent=fmtKz(v+v*mult);
+    document.getElementById("potAposta").textContent = fmtKz(v);
+    document.getElementById("potMult").textContent = mult===4?"×5 (4:1)":"×2 (1:1)";
+    document.getElementById("potGanho").textContent = fmtKz(v+v*mult);
   }
   validarBtn();
 }
-
 function validarBtn(){
-  const v=parseFloat(document.getElementById("stakeInput").value)||0;
-  document.getElementById("btnApostar").disabled=!ladoSelecionado||v<MIN_BET||emRodada;
+  const v = parseFloat(document.getElementById("stakeInput").value)||0;
+  document.getElementById("btnApostar").disabled = !ladoSelecionado || v<MIN_BET || emRodada || !!apostaAtual;
 }
-
 function limparAposta(){
-  if(emRodada) return;
+  if(emRodada||apostaAtual) return;
   ladoSelecionado=null;
   document.querySelectorAll(".side-chip").forEach(c=>c.className="side-chip");
   document.getElementById("stakeInput").value="";
   document.getElementById("potAposta").textContent="—";
   document.getElementById("potMult").textContent="—";
   document.getElementById("potGanho").textContent="—";
-  document.getElementById("betMsg").textContent="";
+  msgBet("Faça a sua aposta antes do tempo terminar.","info");
   validarBtn();
 }
 
-// ========================
-// FAZER APOSTA
-// ========================
+/* FAZER APOSTA */
 async function fazerAposta(){
-  const valor=parseFloat(document.getElementById("stakeInput").value)||0;
+  if(emRodada){ msgBet("Aguarde a próxima ronda.","err"); return; }
+  const valor = parseFloat(document.getElementById("stakeInput").value)||0;
   if(!ladoSelecionado){ msgBet("Escolha Jogador, Empate ou Banca.","err"); return; }
   if(valor<MIN_BET){ msgBet("Aposta mínima é "+fmtKz(MIN_BET)+".","err"); return; }
-
-  const saldoInv=Number(usuario?.saldo_investimento||0);
+  const saldoInv = Number(usuario?.saldo_investimento||0);
   if(saldoInv<valor){ msgBet("Saldo investimento insuficiente. Tem "+fmtKz(saldoInv)+".","err"); return; }
-
-  const ok=await debitarInvestimento(valor);
+  const ok = await debitarInvestimento(valor);
   if(!ok){ msgBet("Erro ao processar aposta.","err"); return; }
-
-  apostaAtual={ lado:ladoSelecionado, valor };
-  msgBet("✅ Aposta registada! A aguardar resultado da ronda…","ok");
-  document.getElementById("btnApostar").disabled=true;
-
-  // Se não há ronda a decorrer, inicia uma imediatamente
-  if(!emRodada) iniciarRonda();
+  apostaAtual = { lado:ladoSelecionado, valor };
+  msgBet("✅ Aposta registada! A aguardar fim do tempo…","ok");
+  validarBtn();
 }
 
-// ========================
-// AUTO-JOGO CONTÍNUO
-// ========================
-function iniciarRonda(){
-  if(emRodada) return;
-  emRodada=true;
+/* CICLO — JANELA DE APOSTAS DE 30s */
+function iniciarJanelaApostas(){
+  emRodada = false;
+  document.getElementById("arenaStatus").textContent = "Aceitando apostas…";
+  document.getElementById("countdown").classList.remove("rolling");
+  document.getElementById("resultBox").className = "result-box";
+  document.getElementById("resultBox").textContent = "A aguardar apostas…";
 
-  ROUND++;
-  document.getElementById("roundLabel").textContent="#"+ROUND;
-  document.getElementById("arenaStatus").textContent="A lançar dados…";
-
-  // Anima outros jogadores
   atualizarLiveBar();
+  validarBtn();
 
-  // Anima os dados
-  const dices=[
+  windowEndsAt = Date.now() + BET_WINDOW_MS;
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(()=>{
+    const rem = windowEndsAt - Date.now();
+    if(rem<=0){
+      clearInterval(countdownTimer);
+      document.getElementById("countdown").textContent = "00:00";
+      iniciarRolagem();
+      return;
+    }
+    const s = Math.ceil(rem/1000);
+    document.getElementById("countdown").textContent =
+      String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  }, 250);
+}
+
+/* ROLAGEM DOS DADOS */
+function iniciarRolagem(){
+  emRodada = true;
+  ROUND++;
+  document.getElementById("roundLabel").textContent = "#"+ROUND;
+  document.getElementById("arenaStatus").textContent = "A lançar dados…";
+  document.getElementById("countdown").classList.add("rolling");
+  document.getElementById("countdown").textContent = "🎲";
+  validarBtn();
+
+  const dices = [
     {el:document.getElementById("J1")},
     {el:document.getElementById("J2")},
     {el:document.getElementById("B1")},
@@ -602,7 +562,7 @@ function iniciarRonda(){
   rollTimers.forEach(t=>clearInterval(t));
   rollTimers=[];
   dices.forEach((d,i)=>{
-    const t=setInterval(()=>{ d.el.textContent=1+Math.floor(Math.random()*6); },60+i*15);
+    const t = setInterval(()=>{ d.el.textContent = 1+Math.floor(Math.random()*6); }, 80+i*20);
     rollTimers.push(t);
   });
 
@@ -615,7 +575,6 @@ function iniciarRonda(){
     const J2=1+Math.floor(Math.random()*6);
     const B1=1+Math.floor(Math.random()*6);
     const B2=1+Math.floor(Math.random()*6);
-
     document.getElementById("J1").textContent=J1;
     document.getElementById("J2").textContent=J2;
     document.getElementById("B1").textContent=B1;
@@ -631,17 +590,13 @@ function iniciarRonda(){
     else vencedor="empate";
 
     resolverResultado(vencedor,somaJ,somaB,J1,J2,B1,B2);
-  },2200);
+  }, ROLL_DURATION);
 }
 
-// ========================
-// RESOLVER RESULTADO
-// ========================
+/* RESULTADO */
 async function resolverResultado(vencedor,somaJ,somaB,j1,j2,b1,b2){
-  const box=document.getElementById("resultBox");
-  const emoji=vencedor==="empate"?"🟡":vencedor==="jogador"?"🔵":"🔴";
-
-  // Resultado visual
+  const box = document.getElementById("resultBox");
+  const emoji = vencedor==="empate"?"🟡":vencedor==="jogador"?"🔵":"🔴";
   if(vencedor==="jogador"){
     box.className="result-box win";
     box.innerHTML=`${emoji} <strong>JOGADOR</strong><br><span style="font-size:11px">${somaJ} vs ${somaB}</span>`;
@@ -655,74 +610,61 @@ async function resolverResultado(vencedor,somaJ,somaB,j1,j2,b1,b2){
     box.innerHTML=`🟡 <strong>EMPATE</strong><br><span style="font-size:11px">${somaJ} vs ${somaB}</span>`;
   }
 
-  // Resolver aposta do utilizador se existir
   if(apostaAtual){
     const { lado, valor } = apostaAtual;
     const ganhou = lado===vencedor;
     const mult = PAYOUTS[lado];
     let ganhoVal=0;
-
     if(ganhou){
-      ganhoVal=valor+valor*mult;
+      ganhoVal = valor + valor*mult;
       await creditarDisponivel(ganhoVal);
       msgBet("🎉 Ganhou "+fmtKz(ganhoVal)+"! Creditado no saldo disponível.","ok");
     } else {
       msgBet("😔 Perdeu "+fmtKz(valor)+". Tente novamente.","err");
     }
-
-    // Registo histórico
-    const reg={
-      id:Math.random().toString(36).slice(2,8),
-      round:ROUND, lado, valor, vencedor, ganhou, ganhoVal, somaJ, somaB,
-      dados:`J:${j1}+${j2}=${somaJ} / B:${b1}+${b2}=${somaB}`,
-      hora:new Date().toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
+    const reg = {
+      id: Math.random().toString(36).slice(2,8),
+      round: ROUND, lado, valor, vencedor, ganhou, ganhoVal, somaJ, somaB,
+      dados: `J:${j1}+${j2}=${somaJ} / B:${b1}+${b2}=${somaB}`,
+      hora: new Date().toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
     };
     historico.unshift(reg);
     renderHistorico();
-    mostrarBanner(ganhou, ganhou?"Ganhou! +"+fmtKz(ganhoVal):"Perdeu -"+fmtKz(valor), valor, ganhoVal, lado, vencedor);
-
-    apostaAtual=null;
-    document.getElementById("btnApostar").disabled=false;
-    validarBtn();
+    mostrarBanner(ganhou, valor, ganhoVal, lado, vencedor);
+    apostaAtual = null;
   }
 
-  document.getElementById("arenaStatus").textContent="Ronda #"+ROUND+" concluída";
-
-  emRodada=false;
-
-  // Próxima ronda automática após 3s
-  autoTimer=setTimeout(iniciarRonda, 3000);
+  document.getElementById("arenaStatus").textContent = "Ronda #"+ROUND+" concluída";
+  // próxima janela de apostas
+  setTimeout(()=>{
+    iniciarJanelaApostas();
+  }, POST_RESULT_MS);
 }
 
-// ========================
-// LIVE BAR — outros jogadores
-// ========================
+/* LIVE BAR */
 const LADOS_EMOJIS={"jogador":"🔵","banca":"🔴","empate":"🟡"};
 const LADOS_LISTA=["jogador","banca","empate"];
 const COR_DOT={"jogador":"g","banca":"r","empate":"y"};
-
 function atualizarLiveBar(){
-  const bar=document.getElementById("liveBar");
-  const n=4+Math.floor(Math.random()*4); // 4 a 7 jogadores falsos
+  const bar = document.getElementById("liveBar");
+  const n = 4+Math.floor(Math.random()*4);
   let html="";
   for(let i=0;i<n;i++){
-    const nome=nomeAleatorio();
-    const lado=LADOS_LISTA[Math.floor(Math.random()*3)];
-    const valor=500*(1+Math.floor(Math.random()*10));
-    html+=`<div class="live-chip"><span class="dot ${COR_DOT[lado]}"></span>${nome} apostou ${LADOS_EMOJIS[lado]} ${fmtKz(valor)}</div>`;
+    const nome = nomeAleatorio();
+    const lado = LADOS_LISTA[Math.floor(Math.random()*3)];
+    const valor = 500*(1+Math.floor(Math.random()*10));
+    html += `<div class="live-chip"><span class="dot ${COR_DOT[lado]}"></span>${nome} apostou ${LADOS_EMOJIS[lado]} ${fmtKz(valor)}</div>`;
   }
-  bar.innerHTML=html;
+  bar.innerHTML = html;
 }
 
-// ========================
-// HISTÓRICO
-// ========================
+/* HISTÓRICO */
 function renderHistorico(){
-  document.getElementById("histCount").textContent=historico.length+" registo"+(historico.length!==1?"s":"");
+  document.getElementById("histCount").textContent = historico.length+" registo"+(historico.length!==1?"s":"");
   if(!historico.length) return;
-  document.getElementById("histList").innerHTML=historico.slice(0,20).map(h=>{
-    const ladoEmoji=h.lado==="jogador"?"🔵":h.lado==="banca"?"🔴":"🟡";
-    const vencEmoji=h.vencedor==="jogador"?"🔵":h.vencedor==="banca"?"🔴":"🟡";
+  document.getElementById("histList").innerHTML = historico.slice(0,20).map(h=>{
+    const ladoEmoji = h.lado==="jogador"?"🔵":h.lado==="banca"?"🔴":"🟡";
+    const vencEmoji = h.vencedor==="jogador"?"🔵":h.vencedor==="banca"?"🔴":"🟡";
     return `
       <div class="hist-card ${h.ganhou?'won':'lost'}">
         <div class="hist-head">
@@ -739,42 +681,36 @@ function renderHistorico(){
   }).join("");
 }
 
-// ========================
-// BANNER RESULTADO
-// ========================
-function mostrarBanner(ganhou,txt,aposta,retorno,lado,vencedor){
-  const banner=document.getElementById("resultBanner");
-  const chip=document.getElementById("bannerChip");
-  document.getElementById("bannerTitle").textContent=ganhou?"🎉 Resultado":"📊 Resultado";
-  chip.textContent=ganhou?"GANHOU":"PERDEU";
-  chip.className="chip-banner "+(ganhou?"win":"lose");
-  const ladoEmoji=lado==="jogador"?"🔵":lado==="banca"?"🔴":"🟡";
-  const vencEmoji=vencedor==="jogador"?"🔵":vencedor==="banca"?"🔴":"🟡";
-  document.getElementById("bannerDetails").innerHTML=`
+/* BANNER */
+function mostrarBanner(ganhou, aposta, retorno, lado, vencedor){
+  const banner = document.getElementById("resultBanner");
+  const chip   = document.getElementById("bannerChip");
+  document.getElementById("bannerTitle").textContent = ganhou?"🎉 Resultado":"📊 Resultado";
+  chip.textContent = ganhou?"GANHOU":"PERDEU";
+  chip.className = "chip-banner "+(ganhou?"win":"lose");
+  const ladoEmoji = lado==="jogador"?"🔵":lado==="banca"?"🔴":"🟡";
+  const vencEmoji = vencedor==="jogador"?"🔵":vencedor==="banca"?"🔴":"🟡";
+  document.getElementById("bannerDetails").innerHTML = `
     <div class="item"><span>${ladoEmoji} Apostou em ${lado.toUpperCase()}</span><span>${fmtKz(aposta)}</span></div>
     <div class="item"><span>${vencEmoji} Venceu ${vencedor.toUpperCase()}</span>
       <span style="font-weight:800;${ganhou?'color:var(--green)':'color:var(--red)'}">${ganhou?'+'+fmtKz(retorno):'-'+fmtKz(aposta)}</span>
     </div>`;
   banner.classList.remove("hidden");
   clearTimeout(window._bannerT);
-  window._bannerT=setTimeout(()=>banner.classList.add("hidden"),5000);
+  window._bannerT = setTimeout(()=>banner.classList.add("hidden"), 5000);
 }
 
-function msgBet(t,tipo){
-  const el=document.getElementById("betMsg");
-  el.textContent=t; el.className="bet-msg "+(tipo||"");
-  if(t) setTimeout(()=>{ el.textContent=""; el.className="bet-msg"; },5000);
+function msgBet(t, tipo){
+  const el = document.getElementById("betMsg");
+  el.textContent = t; el.className = "bet-msg "+(tipo||"info");
 }
 
-// ========================
-// INIT
-// ========================
+/* INIT */
 (async function init(){
-  const ok=await carregarUsuario();
+  const ok = await carregarUsuario();
   if(!ok) return;
   document.getElementById("loadingOverlay").classList.add("hide");
-  // Inicia o jogo automático imediatamente
-  iniciarRonda();
+  iniciarJanelaApostas(); // começa por aceitar apostas
 })();
 </script>
 </body>
